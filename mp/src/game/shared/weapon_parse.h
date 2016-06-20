@@ -77,7 +77,14 @@ public:
 public:	
 	bool					bParsedScript;
 	bool					bLoadedHudElements;
-
+    
+// IRONSIGHT
+    Vector					vecIronsightPosOffset;
+	QAngle					angIronsightAngOffset;
+	float					flIronsightFOVOffset;
+    
+    
+    
 // SHARED
 	char					szClassName[MAX_WEAPON_STRING];
 	char					szPrintName[MAX_WEAPON_STRING];			// Name for showing in HUD, etc.
@@ -91,6 +98,7 @@ public:
 	int						iMaxClip2;								// max secondary clip size (-1 if no clip)
 	int						iDefaultClip1;							// amount of primary ammo in the gun when it's created
 	int						iDefaultClip2;							// amount of secondary ammo in the gun when it's created
+	int						iDefaultIsFOV;							// changing scope FOV using a script
 	int						iWeight;								// this value used to determine this weapon's importance in autoselection.
 	int						iRumbleEffect;							// Which rumble effect to use when fired? (xbox)
 	bool					bAutoSwitchTo;							// whether this weapon should be considered for autoswitching to

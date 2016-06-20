@@ -271,6 +271,11 @@ public:
 	virtual bool			CanPerformSecondaryAttack() const;
 
 	virtual bool			ShouldBlockPrimaryFire() { return false; }
+	
+	// IRONSIGHTS
+    Vector					GetIronsightPositionOffset( void ) const;
+	QAngle					GetIronsightAngleOffset( void ) const;
+	float					GetIronsightFOVOffset( void ) const;
 
 #ifdef CLIENT_DLL
 	virtual void			CreateMove( float flInputSampleTime, CUserCmd *pCmd, const QAngle &vecOldViewAngles ) {}
@@ -366,6 +371,7 @@ public:
 	virtual int				GetMaxClip2( void ) const;
 	virtual int				GetDefaultClip1( void ) const;
 	virtual int				GetDefaultClip2( void ) const;
+    virtual int				GetDefaultIsFOV(void) const; // changing FOV from a script
 	virtual int				GetWeight( void ) const;
 	virtual bool			AllowsAutoSwitchTo( void ) const;
 	virtual bool			AllowsAutoSwitchFrom( void ) const;
@@ -380,7 +386,14 @@ public:
 	virtual bool			UsesClipsForAmmo1( void ) const;
 	virtual bool			UsesClipsForAmmo2( void ) const;
 	bool					IsMeleeWeapon() const;
-
+    //IRONSIGHTS accessors
+    virtual bool				HasIronsights( void ) { return true; } //default yes; override and return false for weapons with no ironsights (like weapon_crowbar)
+	bool					IsIronsighted( void );
+	void					ToggleIronsights( void );
+	void					EnableIronsights( void );
+	void					DisableIronsights( void );
+	void					SetIronsightTime( void );
+    
 	// derive this function if you mod uses encrypted weapon info files
 	virtual const unsigned char *GetEncryptionKey( void );
 
@@ -585,7 +598,10 @@ public:
 
 	bool					SetIdealActivity( Activity ideal );
 	void					MaintainIdealActivity( void );
-
+    // IRONSIGHTS
+    CNetworkVar( bool, m_bIsIronsighted );
+	CNetworkVar( float, m_flIronsightedTime );
+    
 private:
 	Activity				m_Activity;
 	int						m_nIdealSequence;

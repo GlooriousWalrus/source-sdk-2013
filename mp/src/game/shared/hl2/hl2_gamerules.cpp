@@ -1389,6 +1389,8 @@ ConVar  alyx_darkness_force( "alyx_darkness_force", "0", FCVAR_CHEAT | FCVAR_REP
 
    	//-----------------------------------------------------------------------------
   	//-----------------------------------------------------------------------------
+   	//-----------------------------------------------------------------------------
+  	//-----------------------------------------------------------------------------
  	bool CHalfLife2::AllowDamage( CBaseEntity *pVictim, const CTakeDamageInfo &info )
   	{
 #ifndef CLIENT_DLL
@@ -1397,11 +1399,13 @@ ConVar  alyx_darkness_force( "alyx_darkness_force", "0", FCVAR_CHEAT | FCVAR_REP
 		if( pVictim->MyNPCPointer()->IsPlayerAlly() )
 		{
 			// A physics object has struck a player ally. Don't allow damage if it
-			// came from the player's physcannon. 
-			CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);
-
-			if( pPlayer )
+			// came from any player's physcannon. 
+			for (int i = 1; i <= gpGlobals->maxClients; i++ )
 			{
+				CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+				if ( !pPlayer )
+					continue;
+
 				CBaseEntity *pWeapon = pPlayer->HasNamedPlayerItem("weapon_physcannon");
 
 				if( pWeapon )
@@ -1425,7 +1429,8 @@ ConVar  alyx_darkness_force( "alyx_darkness_force", "0", FCVAR_CHEAT | FCVAR_REP
 	}
 #endif
   		return true;
-  	}
+}
+    
 	//-----------------------------------------------------------------------------
 	// Purpose: Whether or not the NPC should drop a health vial
 	// Output : Returns true on success, false on failure.

@@ -59,7 +59,7 @@ void DBG_AssertFunction( bool fExpr, const char *szExpr, const char *szFile, int
 		Q_snprintf(szOut,sizeof(szOut), "ASSERT FAILED:\n %s \n(%s@%d)\n%s", szExpr, szFile, szLine, szMessage);
 	else
 		Q_snprintf(szOut,sizeof(szOut), "ASSERT FAILED:\n %s \n(%s@%d)\n", szExpr, szFile, szLine);
-	Warning( "%s", szOut);
+	Warning( szOut);
 }
 #endif	// DEBUG
 
@@ -161,11 +161,6 @@ IServerNetworkable *CEntityFactoryDictionary::Create( const char *pClassName )
 	IEntityFactory *pFactory = FindFactory( pClassName );
 	if ( !pFactory )
 	{
-#ifdef STAGING_ONLY
-		static ConVarRef tf_bot_use_items( "tf_bot_use_items" );
-		if ( tf_bot_use_items.IsValid() && tf_bot_use_items.GetInt() )
-			return NULL;
-#endif
 		Warning("Attempted to create unknown entity type %s!\n", pClassName );
 		return NULL;
 	}
@@ -205,7 +200,7 @@ void CEntityFactoryDictionary::ReportEntitySizes()
 {
 	for ( int i = m_Factories.First(); i != m_Factories.InvalidIndex(); i = m_Factories.Next( i ) )
 	{
-		Msg( " %s: %llu", m_Factories.GetElementName( i ), (uint64)(m_Factories[i]->GetEntitySize()) );
+		Msg( " %s: %d", m_Factories.GetElementName( i ), m_Factories[i]->GetEntitySize() );
 	}
 }
 
@@ -573,24 +568,6 @@ CBasePlayer	*UTIL_PlayerByIndex( int playerIndex )
 	return pPlayer;
 }
 
-CBasePlayer *UTIL_PlayerBySteamID( const CSteamID &steamID )
-{
-	CSteamID steamIDPlayer;
-	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
-	{
-		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
-		if ( !pPlayer )
-			continue;
-
-		if ( !pPlayer->GetSteamID( &steamIDPlayer ) )
-			continue;
-
-		if ( steamIDPlayer == steamID )
-			return pPlayer;
-	}
-	return NULL;
-}
-
 CBasePlayer* UTIL_PlayerByName( const char *name )
 {
 	if ( !name || !name[0] )
@@ -642,21 +619,63 @@ CBasePlayer* UTIL_PlayerByUserId( int userID )
 // 
 CBasePlayer *UTIL_GetLocalPlayer( void )
 {
-	if ( gpGlobals->maxClients > 1 )
-	{
-		if ( developer.GetBool() )
-		{
-			Assert( !"UTIL_GetLocalPlayer" );
-			
-#ifdef	DEBUG
-			Warning( "UTIL_GetLocalPlayer() called in multiplayer game.\n" );
-#endif
-		}
+	// first try getting the host, failing that, get *ANY* player
+	CBasePlayer *pHost = UTIL_GetListenServerHost();
+	if ( pHost )
+		return pHost;
 
-		return NULL;
+	for (int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+		if ( pPlayer )
+			return pPlayer;
 	}
 
-	return UTIL_PlayerByIndex( 1 );
+	return NULL;
+}
+
+CBasePlayer *UTIL_GetNearestPlayer( const Vector &origin )
+{
+	float distToNearest = 999999.0f;
+	CBasePlayer *pNearest = NULL;
+
+	for (int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+		if ( !pPlayer )
+			continue;
+
+		float flDist = (pPlayer->GetAbsOrigin() - origin).LengthSqr();
+		if ( flDist < distToNearest )
+		{
+			pNearest = pPlayer;
+			distToNearest = flDist;
+		}
+	}
+
+	return pNearest;
+}
+
+CBasePlayer *UTIL_GetNearestVisiblePlayer( CBaseEntity *pLooker, int mask )
+{
+	float distToNearest = 999999.0f;
+	CBasePlayer *pNearest = NULL;
+
+	for (int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+		if ( !pPlayer )
+			continue;
+
+		float flDist = (pPlayer->GetAbsOrigin() - pLooker->GetAbsOrigin()).LengthSqr();
+		if ( flDist < distToNearest && pLooker->FVisible( pPlayer, mask ) )
+		{
+			pNearest = pPlayer;
+			distToNearest = flDist;
+		}
+	}
+
+	return pNearest;
 }
 
 //
@@ -667,8 +686,8 @@ CBasePlayer *UTIL_GetListenServerHost( void )
 	// no "local player" if this is a dedicated server or a single player game
 	if (engine->IsDedicatedServer())
 	{
-		Assert( !"UTIL_GetListenServerHost" );
-		Warning( "UTIL_GetListenServerHost() called from a dedicated server or single-player game.\n" );
+//		Assert( !"UTIL_GetListenServerHost" );
+//		Warning( "UTIL_GetListenServerHost() called from a dedicated server or single-player game.\n" );
 		return NULL;
 	}
 
@@ -925,15 +944,7 @@ void UTIL_ScreenShakeObject( CBaseEntity *pEnt, const Vector &center, float ampl
 				continue;
 			}
 
-			if ( radius > 0 )
-			{
-				localAmplitude = ComputeShakeAmplitude( center, pPlayer->WorldSpaceCenter(), amplitude, radius );
-			}
-			else
-			{
-				// If using a 0 radius, apply to everyone with no falloff
-				localAmplitude = amplitude;
-			}
+			localAmplitude = ComputeShakeAmplitude( center, pPlayer->WorldSpaceCenter(), amplitude, radius );
 
 			// This happens if the player is outside the radius, 
 			// in which case we should ignore all commands
@@ -1371,7 +1382,7 @@ void UTIL_SnapDirectionToAxis( Vector &direction, float epsilon )
 	}
 }
 
-const char *UTIL_VarArgs( const char *format, ... )
+char *UTIL_VarArgs( const char *format, ... )
 {
 	va_list		argptr;
 	static char		string[1024];
@@ -3316,6 +3327,7 @@ void CC_CollisionTest( const CCommand &args )
 #endif
 }
 static ConCommand collision_test("collision_test", CC_CollisionTest, "Tests collision system", FCVAR_CHEAT );
+
 
 
 

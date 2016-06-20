@@ -1218,7 +1218,7 @@ void CAntlionTemplateMaker::FindNodesCloseToPlayer( void )
 				continue;
 
 			Vector vHintPos;
-			pNode->GetPosition( HULL_MEDIUM, &vHintPos );
+			pNode->GetPosition( UTIL_GetNearestPlayer(GetAbsOrigin()), &vHintPos );
 		
 			bool bBlank;
 			if ( CBaseEntity *pBlocker = AllHintsFromClusterBlocked( pNode, bBlank ) )
