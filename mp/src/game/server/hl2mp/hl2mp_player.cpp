@@ -48,19 +48,19 @@ IMPLEMENT_SERVERCLASS_ST(CHL2MP_Player, DT_HL2MP_Player)
 	SendPropEHandle( SENDINFO( m_hRagdoll ) ),
 	SendPropInt( SENDINFO( m_iSpawnInterpCounter), 4 ),
 	SendPropInt( SENDINFO( m_iPlayerSoundType), 3 ),
-	
+
 	SendPropExclude( "DT_BaseAnimating", "m_flPoseParameter" ),
 	SendPropExclude( "DT_BaseFlex", "m_viewtarget" ),
 
-//	SendPropExclude( "DT_ServerAnimationData" , "m_flCycle" ),	
+//	SendPropExclude( "DT_ServerAnimationData" , "m_flCycle" ),
 //	SendPropExclude( "DT_AnimTimeMustBeFirst" , "m_flAnimTime" ),
-	
+
 END_SEND_TABLE()
 
 BEGIN_DATADESC( CHL2MP_Player )
 END_DATADESC()
 
-const char *g_ppszRandomCitizenModels[] = 
+const char *g_ppszRandomCitizenModels[] =
 {
 	"models/humans/group03/male_01.mdl",
 	"models/humans/group03/male_02.mdl",
@@ -111,7 +111,7 @@ CHL2MP_Player::CHL2MP_Player() : m_PlayerAnimState( this )
 	m_bReady = false;
 
 	BaseClass::ChangeTeam( 0 );
-	
+
 //	UseClientSideAnimation();
 }
 
@@ -139,7 +139,7 @@ void CHL2MP_Player::Precache( void )
 
 	//Precache Citizen models
 	int nHeads = ARRAYSIZE( g_ppszRandomCitizenModels );
-	int i;	
+	int i;
 
 	for ( i = 0; i < nHeads; ++i )
 	   	 PrecacheModel( g_ppszRandomCitizenModels[i] );
@@ -180,18 +180,18 @@ void CHL2MP_Player::GiveAllItems( void )
 
 	GiveNamedItem( "weapon_smg1" );
 	GiveNamedItem( "weapon_ar2" );
-	
+
 	GiveNamedItem( "weapon_shotgun" );
 	GiveNamedItem( "weapon_frag" );
-	
+
 	GiveNamedItem( "weapon_crossbow" );
-	
+
 	GiveNamedItem( "weapon_rpg" );
 
 	GiveNamedItem( "weapon_slam" );
 
 	GiveNamedItem( "weapon_physcannon" );
-	
+
 }
 
 void CHL2MP_Player::GiveDefaultItems( void )
@@ -212,7 +212,7 @@ void CHL2MP_Player::GiveDefaultItems( void )
 	{
 		GiveNamedItem( "weapon_crowbar" );
 	}
-	
+
 	GiveNamedItem( "weapon_pistol" );
 	GiveNamedItem( "weapon_smg1" );
 	GiveNamedItem( "weapon_frag" );
@@ -293,14 +293,14 @@ void CHL2MP_Player::Spawn(void)
 	PickDefaultSpawnTeam();
 
 	BaseClass::Spawn();
-	
+
 	if ( !IsObserver() )
 	{
 		pl.deadflag = false;
 		RemoveSolidFlags( FSOLID_NOT_SOLID );
 
 		RemoveEffects( EF_NODRAW );
-		
+
 		GiveDefaultItems();
 	}
 
@@ -310,7 +310,7 @@ void CHL2MP_Player::Spawn(void)
 	m_nRenderFX = kRenderNormal;
 
 	m_Local.m_iHideHUD = 0;
-	
+
 	AddFlag(FL_ONGROUND); // set the player on the ground at the start of the round.
 
 	m_impactEnergyScale = HL2MPPLAYER_PHYSDAMAGE_SCALE;
@@ -335,13 +335,34 @@ void CHL2MP_Player::Spawn(void)
 
 void CHL2MP_Player::PickupObject( CBaseEntity *pObject, bool bLimitMassAndSize )
 {
-	
+	// can't pick up what you're standing on
+	if ( GetGroundEntity() == pObject )
+		return;
+
+	if ( bLimitMassAndSize == true )
+	{
+		if ( CBasePlayer::CanPickupObject( pObject, 35, 128 ) == false )
+		return;
+	}
+
+	// Can't be picked up if NPCs are on me
+	if ( pObject->HasNPCsOnIt() )
+		return;
+
+		HideViewModels();//SecobMod__Information: Hides the currently held players weapon model, since the weapon gets removed below, but the weapon model remains on screen without this line.
+		ClearActiveWeapon(); //SecobMod__Information: Prevents weapon sounds/effects on throwing picked up objects.
+
+	//SecobMod__Information: Here we make players who are holding items switch to an invisible hands weapon so as to not T-Pose their animation. Naturally mod teams should really make new animations for stuff like this.
+	Weapon_Switch( Weapon_OwnsThisType( "weapon_hands" ) );
+
+	PlayerPickupObject( this, pObject );
+
 }
 
 bool CHL2MP_Player::ValidatePlayerModel( const char *pModel )
 {
 	int iModels = ARRAYSIZE( g_ppszRandomCitizenModels );
-	int i;	
+	int i;
 
 	for ( i = 0; i < iModels; ++i )
 	{
@@ -387,7 +408,7 @@ void CHL2MP_Player::SetPlayerTeamModel( void )
 		if ( Q_stristr( szModelName, "models/human") )
 		{
 			int nHeads = ARRAYSIZE( g_ppszRandomCombineModels );
-		
+
 			g_iLastCombineModel = ( g_iLastCombineModel + 1 ) % nHeads;
 			szModelName = g_ppszRandomCombineModels[g_iLastCombineModel];
 		}
@@ -406,7 +427,7 @@ void CHL2MP_Player::SetPlayerTeamModel( void )
 
 		m_iModelType = TEAM_REBELS;
 	}
-	
+
 	SetModel( szModelName );
 	SetupPlayerSoundsByModel( szModelName );
 
@@ -438,7 +459,7 @@ void CHL2MP_Player::SetPlayerModel( void )
 	if ( GetTeamNumber() == TEAM_COMBINE )
 	{
 		int nHeads = ARRAYSIZE( g_ppszRandomCombineModels );
-		
+
 		g_iLastCombineModel = ( g_iLastCombineModel + 1 ) % nHeads;
 		szModelName = g_ppszRandomCombineModels[g_iLastCombineModel];
 
@@ -455,7 +476,7 @@ void CHL2MP_Player::SetPlayerModel( void )
 	}
 	else
 	{
-		if ( Q_strlen( szModelName ) == 0 ) 
+		if ( Q_strlen( szModelName ) == 0 )
 		{
 			szModelName = g_ppszRandomCitizenModels[0];
 		}
@@ -559,7 +580,7 @@ void CHL2MP_Player::PreThink( void )
 void CHL2MP_Player::PostThink( void )
 {
 	BaseClass::PostThink();
-	
+
 	if ( GetFlags() & FL_DUCKING )
 	{
 		SetCollisionBounds( VEC_CROUCH_TRACE_MIN, VEC_CROUCH_TRACE_MAX );
@@ -630,7 +651,7 @@ bool CHL2MP_Player::WantsLagCompensationOnEntity( const CBaseEntity *pEntity, co
 	const Vector &vMyOrigin = GetAbsOrigin();
 	const Vector &vHisOrigin = pEntity->GetAbsOrigin();
 
-	// get max distance player could have moved within max lag compensation time, 
+	// get max distance player could have moved within max lag compensation time,
 	// multiply by 1.5 to to avoid "dead zones"  (sqrt(2) would be the exact value)
     float maxspeed;
 	CBasePlayer *pPlayer = ToBasePlayer((CBaseEntity*)pEntity);
@@ -647,7 +668,7 @@ bool CHL2MP_Player::WantsLagCompensationOnEntity( const CBaseEntity *pEntity, co
 	// If their origin is not within a 45 degree cone in front of us, no need to lag compensate.
 	Vector vForward;
 	AngleVectors( pCmd->viewangles, &vForward );
-	
+
 	Vector vDiff = vHisOrigin - vMyOrigin;
 	VectorNormalize( vDiff );
 
@@ -662,7 +683,7 @@ Activity CHL2MP_Player::TranslateTeamActivity( Activity ActToTranslate )
 {
 	if ( m_iModelType == TEAM_COMBINE )
 		 return ActToTranslate;
-	
+
 	if ( ActToTranslate == ACT_RUN )
 		 return ACT_RUN_AIM_AGITATED;
 
@@ -686,7 +707,7 @@ void CHL2MP_Player::SetAnimation( PLAYER_ANIM playerAnim )
 
 	speed = GetAbsVelocity().Length2D();
 
-	
+
 	// bool bRunning = true;
 
 	//Revisit!
@@ -720,7 +741,7 @@ void CHL2MP_Player::SetAnimation( PLAYER_ANIM playerAnim )
 	}
 	else if ( playerAnim == PLAYER_ATTACK1 )
 	{
-		if ( GetActivity( ) == ACT_HOVER	|| 
+		if ( GetActivity( ) == ACT_HOVER	||
 			 GetActivity( ) == ACT_SWIM		||
 			 GetActivity( ) == ACT_HOP		||
 			 GetActivity( ) == ACT_LEAP		||
@@ -789,7 +810,7 @@ void CHL2MP_Player::SetAnimation( PLAYER_ANIM playerAnim )
 
 		idealActivity = TranslateTeamActivity( idealActivity );
 	}
-	
+
 	if ( idealActivity == ACT_HL2MP_GESTURE_RANGE_ATTACK )
 	{
 		RestartGesture( Weapon_TranslateActivity( idealActivity ) );
@@ -819,7 +840,7 @@ void CHL2MP_Player::SetAnimation( PLAYER_ANIM playerAnim )
 				animDesired = 0;
 			}
 		}
-	
+
 		// Already using the desired animation?
 		if ( GetSequence() == animDesired )
 			return;
@@ -843,7 +864,7 @@ void CHL2MP_Player::SetAnimation( PLAYER_ANIM playerAnim )
 
 extern int	gEvilImpulse101;
 //-----------------------------------------------------------------------------
-// Purpose: Player reacts to bumping a weapon. 
+// Purpose: Player reacts to bumping a weapon.
 // Input  : pWeapon - the weapon that the player bumped into.
 // Output : Returns true if player picked up the weapon
 //-----------------------------------------------------------------------------
@@ -872,7 +893,7 @@ bool CHL2MP_Player::BumpWeapon( CBaseCombatWeapon *pWeapon )
 
 	bool bOwnsWeaponAlready = !!Weapon_OwnsThisType( pWeapon->GetClassname(), pWeapon->GetSubType());
 
-	if ( bOwnsWeaponAlready == true ) 
+	if ( bOwnsWeaponAlready == true )
 	{
 		//If we have room for the ammo, then "take" the weapon too.
 		 if ( Weapon_EquipAmmoOnly( pWeapon ) )
@@ -997,11 +1018,11 @@ bool CHL2MP_Player::ClientCommand( const CCommand &args )
 		if ( ShouldRunRateLimitedCommand( args ) )
 		{
 			// instantly join spectators
-			HandleCommand_JoinTeam( TEAM_SPECTATOR );	
+			HandleCommand_JoinTeam( TEAM_SPECTATOR );
 		}
 		return true;
 	}
-	else if ( FStrEq( args[0], "jointeam" ) ) 
+	else if ( FStrEq( args[0], "jointeam" ) )
 	{
 		if ( args.ArgC() < 2 )
 		{
@@ -1105,7 +1126,7 @@ public:
 	// In case the client has the player entity, we transmit the player index.
 	// In case the client doesn't have it, we transmit the player's model index, origin, and angles
 	// so they can create a ragdoll in the right place.
-	CNetworkHandle( CBaseEntity, m_hPlayer );	// networked entity handle 
+	CNetworkHandle( CBaseEntity, m_hPlayer );	// networked entity handle
 	CNetworkVector( m_vecRagdollVelocity );
 	CNetworkVector( m_vecRagdollOrigin );
 };
@@ -1132,7 +1153,7 @@ void CHL2MP_Player::CreateRagdollEntity( void )
 
 	// If we already have a ragdoll, don't make another one.
 	CHL2MPRagdoll *pRagdoll = dynamic_cast< CHL2MPRagdoll* >( m_hRagdoll.Get() );
-	
+
 	if ( !pRagdoll )
 	{
 		// create a new one
@@ -1180,7 +1201,7 @@ void CHL2MP_Player::FlashlightTurnOn( void )
 void CHL2MP_Player::FlashlightTurnOff( void )
 {
 	RemoveEffects( EF_DIMLIGHT );
-	
+
 	if( IsAlive() )
 	{
 		EmitSound( "HL2Player.FlashlightOff" );
@@ -1278,7 +1299,7 @@ int CHL2MP_Player::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		return 0;
 
 	m_vecTotalBulletForce += inputInfo.GetDamageForce();
-	
+
 	gamestats->Event_PlayerDamage( this, inputInfo );
 
 	return BaseClass::OnTakeDamage( inputInfo );
@@ -1300,7 +1321,7 @@ void CHL2MP_Player::DeathSound( const CTakeDamageInfo &info )
 		return;
 
 	Vector vecOrigin = GetAbsOrigin();
-	
+
 	CRecipientFilter filter;
 	filter.AddRecipientsByPAS( vecOrigin );
 
@@ -1352,7 +1373,7 @@ CBaseEntity* CHL2MP_Player::EntSelectSpawnPoint( void )
 
 	CBaseEntity *pFirstSpot = pSpot;
 
-	do 
+	do
 	{
 		if ( pSpot )
 		{
@@ -1402,7 +1423,7 @@ ReturnSpot:
 		{
 			g_pLastCombineSpawn = pSpot;
 		}
-		else if ( GetTeamNumber() == TEAM_REBELS ) 
+		else if ( GetTeamNumber() == TEAM_REBELS )
 		{
 			g_pLastRebelSpawn = pSpot;
 		}
@@ -1413,7 +1434,7 @@ ReturnSpot:
 	m_flSlamProtectTime = gpGlobals->curtime + 0.5;
 
 	return pSpot;
-} 
+}
 
 
 CON_COMMAND( timeleft, "prints the time remaining in the match" )
@@ -1421,7 +1442,7 @@ CON_COMMAND( timeleft, "prints the time remaining in the match" )
 	CHL2MP_Player *pPlayer = ToHL2MPPlayer( UTIL_GetCommandClient() );
 
 	int iTimeRemaining = (int)HL2MPRules()->GetMapRemainingTime();
-    
+
 	if ( iTimeRemaining == 0 )
 	{
 		if ( pPlayer )
@@ -1453,12 +1474,12 @@ CON_COMMAND( timeleft, "prints the time remaining in the match" )
 		{
 			Msg( "Time Remaining:  %s:%s\n", minutes, seconds );
 		}
-	}	
+	}
 }
 
 
 void CHL2MP_Player::Reset()
-{	
+{
 	ResetDeathCount();
 	ResetFragCount();
 }
@@ -1493,7 +1514,7 @@ void CHL2MP_Player::CheckChatText( char *p, int bufsize )
 	// copy buf back into p
 	Q_strncpy( p, buf, bufsize );
 
-	delete[] buf;	
+	delete[] buf;
 
 	const char *pReadyCheck = p;
 
@@ -1538,7 +1559,7 @@ void CHL2MP_Player::State_PreThink()
 
 CHL2MPPlayerStateInfo *CHL2MP_Player::State_LookupInfo( HL2MPPlayerState state )
 {
-	// This table MUST match the 
+	// This table MUST match the
 	static CHL2MPPlayerStateInfo playerStateInfos[] =
 	{
 		{ STATE_ACTIVE,			"STATE_ACTIVE",			&CHL2MP_Player::State_Enter_ACTIVE, NULL, &CHL2MP_Player::State_PreThink_ACTIVE },
@@ -1607,23 +1628,23 @@ void CHL2MP_Player::State_PreThink_OBSERVER_MODE()
 void CHL2MP_Player::State_Enter_ACTIVE()
 {
 	SetMoveType( MOVETYPE_WALK );
-	
+
 	// md 8/15/07 - They'll get set back to solid when they actually respawn. If we set them solid now and mp_forcerespawn
 	// is false, then they'll be spectating but blocking live players from moving.
 	// RemoveSolidFlags( FSOLID_NOT_SOLID );
-	
+
 	m_Local.m_iHideHUD = 0;
 }
 
 
 void CHL2MP_Player::State_PreThink_ACTIVE()
 {
-	//we don't really need to do anything here. 
+	//we don't really need to do anything here.
 	//This state_prethink structure came over from CS:S and was doing an assert check that fails the way hl2dm handles death
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 bool CHL2MP_Player::CanHearAndReadChatFrom( CBasePlayer *pPlayer )
 {
