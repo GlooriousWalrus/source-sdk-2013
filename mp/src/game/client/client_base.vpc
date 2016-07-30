@@ -504,6 +504,9 @@ $Project
 		$File	"$SRCDIR\public\haptics\haptic_msgs.cpp"	[!$X360]
 		$File	"$SRCDIR\public\haptics\haptic_utils.cpp"	[$WIN32&&!$X360]
 
+		$File	"tne_RenderTargets.cpp"
+		$File	"tne_RenderTargets.h"
+
 		$Folder	"Sixense"
 		{
 			$File	"sixense\in_sixense.cpp"
