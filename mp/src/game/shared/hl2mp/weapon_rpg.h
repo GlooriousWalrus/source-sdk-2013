@@ -79,6 +79,9 @@ public:
 
     void CreateDangerSounds( bool bState ){ m_bCreateDangerSounds = bState; }
 
+	static void AddCustomDetonator( CBaseEntity *pEntity, float radius, float height = -1 );
+	static void RemoveCustomDetonator( CBaseEntity *pEntity );
+
 protected:
 	virtual void DoExplosion();	
 	virtual void ComputeActualDotPosition( CLaserDot *pLaserDot, Vector *pActualDotPosition, float *pHomingSpeed );

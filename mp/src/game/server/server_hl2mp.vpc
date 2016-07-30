@@ -16,7 +16,7 @@ $Configuration
 	$Compiler
 	{
 		$AdditionalIncludeDirectories	"$BASE;$SRCDIR\game\shared\hl2,.\hl2,.\hl2mp,$SRCDIR\game\shared\hl2mp"
-		$PreprocessorDefinitions		"$BASE;HL2MP;HL2_DLL"
+		$PreprocessorDefinitions		"$BASE;HL2MP;HL2_DLL;HL2_EPISODIC";
 	}
 }
 
@@ -60,6 +60,56 @@ $Project "Server (HL2MP)"
 		$File	"trigger_area_capture.h"
 		$File   "$SRCDIR\game\shared\teamplay_round_timer.cpp"
 		$File   "$SRCDIR\game\shared\teamplay_round_timer.h"
+
+		
+			$File	"ai_eventresponse.cpp"
+			$File	"ai_eventresponse.h"
+			$File	"episodic\ai_behavior_alyx_injured.cpp"
+			$File	"episodic\ai_behavior_alyx_injured.h"
+			$File	"vehicle_choreo_generic.cpp"
+			//$File	"$SRCDIR\game\shared\weapon_parse_default.cpp"
+			$File	"$SRCDIR\game\shared\vehicle_choreo_generic_shared.h"
+			$File	"episodic\ai_behavior_passenger_companion.cpp"
+			$File	"episodic\ai_behavior_passenger_companion.h"
+			$File	"episodic\ai_behavior_passenger_zombie.cpp"
+			$File	"episodic\ai_behavior_passenger_zombie.h"
+			$File	"hl2\ai_behavior_operator.cpp"
+			$File	"hl2\ai_behavior_operator.h"
+			$File	"ai_behavior_passenger.cpp"
+			$File	"ai_behavior_passenger.h"
+			$File	"hl2\grenade_spit.cpp"
+			$File	"hl2\grenade_spit.h"
+			$File	"hl2\info_darknessmode_lightsource.cpp"
+			$File	"hl2\info_darknessmode_lightsource.h"
+			$File	"$SRCDIR\game\shared\episodic\npc_advisor_shared.h"
+			$File	"episodic\npc_advisor.cpp"
+			$File	"hl2\npc_alyx_episodic.cpp"
+			$File	"hl2\npc_alyx_episodic.h"
+			$File	"hl2\npc_antliongrub.h"
+			$File	"hl2\npc_antliongrub.cpp"
+			$File	"episodic\npc_combine_cannon.cpp"
+			$File	"hl2\npc_fastzombie.cpp"
+			$File	"episodic\weapon_striderbuster.cpp"
+			$File	"episodic\weapon_striderbuster.h"
+			$File	"episodic\npc_hunter.cpp"
+			$File	"episodic\npc_hunter.h"
+			$File	"episodic\npc_magnusson.cpp"
+			$File	"hl2\npc_scanner.h"
+			$File	"hl2\npc_zombine.cpp"
+			$File	"episodic\prop_scalable.cpp"
+			$File	"hl2\vehicle_cannon.cpp"
+			$File	"hl2\vehicle_jeep.cpp"
+			$File	"episodic\vehicle_jeep_episodic.cpp"
+			$File	"episodic\vehicle_jeep_episodic.h"
+			$File	"hl2\weapon_alyxgun.cpp"
+			$File	"hl2\weapon_citizenpackage.cpp"
+			$File	"hl2\weapon_citizenpackage.h"
+			$File	"hl2\func_bulletshield.cpp"
+			$File	"hl2\func_bulletshield.h"
+			$File	"episodic\npc_puppet.cpp"
+
+
+		
 
 		$Folder	"HL2 DLL"
 		{
@@ -140,8 +190,8 @@ $Project "Server (HL2MP)"
 			$File	"hl2\item_suit.cpp"
 			$File	"hl2\look_door.cpp"
 			$File	"hl2\monster_dummy.cpp"
-			$File	"hl2\npc_alyx.cpp"
-			$File	"hl2\npc_alyx.h"
+			//$File	"hl2\npc_alyx.cpp"
+			//$File	"hl2\npc_alyx.h"
 			$File	"hl2\npc_antlion.cpp"
 			$File	"hl2\npc_antlion.h"
 			$File	"hl2\npc_antlionguard.cpp"
@@ -225,8 +275,6 @@ $Project "Server (HL2MP)"
 			$File	"hl2\weapon_bugbait.cpp"
 			$File	"hl2\weapon_crowbar.h"
 			$File	"weapon_cubemap.cpp"
-
-			$File	"hl2\npc_fastzombie.cpp"
 
 			$Folder	"unused"
 			{

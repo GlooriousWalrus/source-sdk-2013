@@ -77,6 +77,7 @@
       <File Name="../../game/shared/hl2/hl2_gamerules.cpp"/>
       <File Name="../../game/shared/hl2/hl2_usermessages.cpp"/>
       <File Name="../../game/shared/hl2/hl_gamemovement.cpp"/>
+      <File Name="../../game/shared/hl2/survival_gamerules.cpp"/>
       <File Name="../../game/shared/hl2mp/hl2mp_gamerules.cpp"/>
       <File Name="../../game/shared/hl2mp/hl2mp_player_shared.cpp"/>
       <File Name="../../game/shared/hl2mp/hl2mp_weapon_parse.cpp"/>
@@ -332,7 +333,14 @@
       <File Name="EffectsClient.cpp"/>
       <File Name="entityoriginmaterialproxy.cpp"/>
       <File Name="entity_client_tools.cpp"/>
+      <File Name="episodic/c_npc_advisor.cpp"/>
+      <File Name="episodic/c_npc_puppet.cpp"/>
+      <File Name="episodic/c_prop_scalable.cpp"/>
+      <File Name="episodic/c_vehicle_jeep_episodic.cpp"/>
       <File Name="episodic/c_vort_charge_token.cpp"/>
+      <File Name="episodic/c_weapon_hopwire.cpp"/>
+      <File Name="episodic/episodic_screenspaceeffects.cpp"/>
+      <File Name="episodic/flesh_internal_material_proxy.cpp"/>
       <File Name="flashlighteffect.cpp"/>
       <File Name="functionproxy.cpp"/>
       <File Name="fx.cpp"/>
@@ -421,8 +429,10 @@
       <File Name="hl2/hud_flashlight.cpp"/>
       <File Name="hl2/hud_hdrdemo.cpp"/>
       <File Name="hl2/hud_health.cpp"/>
+      <File Name="hl2/hud_locator.cpp"/>
       <File Name="hl2/hud_poisondamageindicator.cpp"/>
       <File Name="hl2/hud_quickinfo.cpp"/>
+      <File Name="hl2/hud_radar.cpp"/>
       <File Name="hl2/hud_suitpower.cpp"/>
       <File Name="hl2/hud_weaponselection.cpp"/>
       <File Name="hl2/hud_zoom.cpp"/>
@@ -452,6 +462,7 @@
       <File Name="hud_msg.cpp"/>
       <File Name="hud_numericdisplay.cpp"/>
       <File Name="hud_pdump.cpp"/>
+      <File Name="hud_posture.cpp"/>
       <File Name="hud_redraw.cpp"/>
       <File Name="hud_squadstatus.cpp"/>
       <File Name="hud_vehicle.cpp"/>
@@ -513,6 +524,7 @@
       <File Name="texturescrollmaterialproxy.cpp"/>
       <File Name="text_message.cpp"/>
       <File Name="timematerialproxy.cpp"/>
+      <File Name="tne_RenderTargets.cpp"/>
       <File Name="toggletextureproxy.cpp"/>
       <File Name="toolframework_client.cpp"/>
       <File Name="train.cpp"/>
@@ -589,6 +601,7 @@
       <File Name="../../game/shared/entityparticletrail_shared.h"/>
       <File Name="../../game/shared/env_detail_controller.h"/>
       <File Name="../../game/shared/env_wind_shared.h"/>
+      <File Name="../../game/shared/episodic/npc_advisor_shared.h"/>
       <File Name="../../game/shared/eventlist.h"/>
       <File Name="../../game/shared/func_dust_shared.h"/>
       <File Name="../../game/shared/func_ladder.h"/>
@@ -998,6 +1011,7 @@
       <File Name="c_world.h"/>
       <File Name="detailobjectsystem.h"/>
       <File Name="enginesprite.h"/>
+      <File Name="episodic/episodic_screenspaceeffects.h"/>
       <File Name="flashlighteffect.h"/>
       <File Name="fontabc.h"/>
       <File Name="functionproxy.h"/>
@@ -1039,6 +1053,7 @@
       <File Name="hl2/c_hl2_playerlocaldata.h"/>
       <File Name="hl2/c_prop_combine_ball.h"/>
       <File Name="hl2/c_vehicle_crane.h"/>
+      <File Name="hl2/hud_radar.h"/>
       <File Name="hl2/hud_suitpower.h"/>
       <File Name="hl2mp/clientmode_hl2mpnormal.h"/>
       <File Name="hl2mp/c_hl2mp_player.h"/>
@@ -1134,6 +1149,7 @@
       <File Name="tempent.h"/>
       <File Name="text_message.h"/>
       <File Name="timedevent.h"/>
+      <File Name="tne_RenderTargets.h"/>
       <File Name="toggletextureproxy.h"/>
       <File Name="toolframework_client.h"/>
       <File Name="vguicenterprint.h"/>
