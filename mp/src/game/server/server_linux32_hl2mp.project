@@ -1094,6 +1094,7 @@
       <File Name="hl2/item_dynamic_resupply.h"/>
       <File Name="hl2/npc_alyx_episodic.h"/>
       <File Name="hl2/npc_antlion.h"/>
+      <File Name="hl2/npc_antliongrub.h"/>
       <File Name="hl2/npc_attackchopper.h"/>
       <File Name="hl2/npc_barnacle.h"/>
       <File Name="hl2/npc_basescanner.h"/>
