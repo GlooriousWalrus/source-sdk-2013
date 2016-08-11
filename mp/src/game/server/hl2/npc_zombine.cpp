@@ -27,8 +27,8 @@
 #include "IEffects.h"
 #include "props.h"
 #include "physics_npc_solver.h"
-#include "hl2_player.h"
-#include "hl2_gamerules.h"
+#include "hl2mp_player.h"
+#include "hl2mp_gamerules.h"
 
 #include "basecombatweapon.h"
 #include "basegrenade_shared.h"
@@ -412,10 +412,12 @@ void CNPC_Zombine::GatherGrenadeConditions( void )
 	if ( m_ActBusyBehavior.IsActive() )
 		return;
 
-	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
+	CBasePlayer *pPlayer = UTIL_GetNearestVisiblePlayer(this);
+	Warning( "LOOKING FOR NEAREST PLAYER!\n" );
 
 	if ( pPlayer && pPlayer->FVisible( this ) )
 	{
+		Warning( "CALCULATING LENGTH!\n" );
 		float flLengthToPlayer = (pPlayer->GetAbsOrigin() - GetAbsOrigin()).Length();
 		float flLengthToEnemy = flLengthToPlayer;
 
@@ -514,8 +516,8 @@ void CNPC_Zombine::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDi
 	BaseClass::TraceAttack( info, vecDir, ptr, pAccumulator );
 
 	//Only knock grenades off their hands if it's a player doing the damage.
-	if ( info.GetAttacker() && info.GetAttacker()->IsNPC() )
-		return;
+	/*if ( info.GetAttacker() && info.GetAttacker()->IsNPC() )
+		return;*/
 
 	if ( info.GetDamageType() & ( DMG_BULLET | DMG_CLUB ) )
 	{
@@ -610,15 +612,17 @@ bool CNPC_Zombine::AllowedToSprint( void )
 		return false;
 
 	int iChance = SPRINT_CHANCE_VALUE;
-
-	CHL2_Player *pPlayer = dynamic_cast <CHL2_Player*> ( UTIL_GetNearestPlayer(GetAbsOrigin()) );
+	
+	Warning( "SPRINTING!" );
+	//UTIL_GetNearestVisiblePlayer(this)
+	CHL2_Player *pPlayer = dynamic_cast <CHL2_Player*> ( UTIL_GetNearestVisiblePlayer(this) );
 
 	if ( pPlayer )
 	{
-		if ( HL2GameRules()->IsAlyxInDarknessMode() && pPlayer->FlashlightIsOn() == false )
+		/*if ( HL2GameRules()->IsAlyxInDarknessMode() && pPlayer->FlashlightIsOn() == false )
 		{
 			iChance = SPRINT_CHANCE_VALUE_DARKNESS;
-		}
+		}*/
 
 		//Bigger chance of this happening if the player is not looking at the zombie
 		if ( pPlayer->FInViewCone( this ) == false )
