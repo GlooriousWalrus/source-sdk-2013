@@ -27,7 +27,10 @@
 #include "IEffects.h"
 #include "props.h"
 #include "physics_npc_solver.h"
-#include "hl2mp_player.h"
+#include "hl2_player.h"
+#include "hl2_gamerules.h"
+
+
 #include "hl2mp_gamerules.h"
 
 #include "basecombatweapon.h"
