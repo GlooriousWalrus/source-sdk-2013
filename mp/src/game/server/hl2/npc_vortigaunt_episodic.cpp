@@ -1849,7 +1849,7 @@ bool CNPC_Vortigaunt::OverrideMoveFacing( const AILocalMoveGoal_t &move, float f
 //-----------------------------------------------------------------------------
 void CNPC_Vortigaunt::BuildScheduleTestBits( void )
 {
-	// Call to base
+
 	BaseClass::BuildScheduleTestBits();
 
 	// Allow healing to interrupt us if we're standing around
@@ -2662,9 +2662,9 @@ int CNPC_Vortigaunt::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 		return BaseClass::OnTakeDamage_Alive( subInfo );
 	}
 
-	if ( ( info.GetAttacker() -> GetFlags() & FL_CLIENT ) ) // Скажем, что тот кто у нас стреляет будет атакующим.
+	if ( ( info.GetAttacker() -> GetFlags() & FL_CLIENT ) )
 		{
-		AddClassRelationship( CLASS_PLAYER, D_HT, 0 ); // и наш РелейшенШип к этому персонажу станет отрицательным smile
+		AddClassRelationship( CLASS_PLAYER, D_HT, 0 );
 		}
 
 	return BaseClass::OnTakeDamage_Alive( info );
