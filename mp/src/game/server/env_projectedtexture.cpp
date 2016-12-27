@@ -13,7 +13,7 @@
 #define ENV_PROJECTEDTEXTURE_STARTON			(1<<0)
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 class CEnvProjectedTexture : public CPointEntity
 {
@@ -78,7 +78,7 @@ BEGIN_DATADESC( CEnvProjectedTexture )
 	DEFINE_KEYFIELD( m_flNearZ, FIELD_FLOAT, "nearz" ),
 	DEFINE_KEYFIELD( m_flFarZ, FIELD_FLOAT, "farz" ),
 	DEFINE_KEYFIELD( m_nShadowQuality, FIELD_INTEGER, "shadowquality" ),
-	DEFINE_FIELD( m_LinearFloatLightColor, FIELD_VECTOR ), 
+	DEFINE_FIELD( m_LinearFloatLightColor, FIELD_VECTOR ),
 
 	DEFINE_INPUTFUNC( FIELD_VOID, "TurnOn", InputTurnOn ),
 	DEFINE_INPUTFUNC( FIELD_VOID, "TurnOff", InputTurnOff ),
@@ -113,7 +113,7 @@ IMPLEMENT_SERVERCLASS_ST( CEnvProjectedTexture, DT_EnvProjectedTexture )
 END_SEND_TABLE()
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CEnvProjectedTexture::CEnvProjectedTexture( void )
 {
@@ -237,9 +237,20 @@ void CEnvProjectedTexture::Activate( void )
 	BaseClass::Activate();
 }
 
+//recalculate angles towards the target
 void CEnvProjectedTexture::InitialThink( void )
 {
-	m_hTargetEntity = gEntList.FindEntityByName( NULL, m_target );
+	if ( m_hTargetEntity == NULL && m_target != NULL_STRING )
+		m_hTargetEntity = gEntList.FindEntityByName( NULL, m_target );
+	if ( m_hTargetEntity == NULL )
+		return;
+
+	Vector vecToTarget = (m_hTargetEntity->GetAbsOrigin() - GetAbsOrigin());
+	QAngle vecAngles;
+	VectorAngles( vecToTarget, vecAngles );
+	SetAbsAngles( vecAngles );
+
+	SetNextThink( gpGlobals->curtime + 0.1 );
 }
 
 int CEnvProjectedTexture::UpdateTransmitState()
@@ -256,7 +267,7 @@ void CC_CreateFlashlight( const CCommand &args )
 		return;
 
 	QAngle angles = pPlayer->EyeAngles();
-	Vector origin = pPlayer->EyePosition();		
+	Vector origin = pPlayer->EyePosition();
 
 	CEnvProjectedTexture *pFlashlight = dynamic_cast< CEnvProjectedTexture * >( CreateEntityByName("env_projectedtexture") );
 	if( args.ArgC() > 1 )

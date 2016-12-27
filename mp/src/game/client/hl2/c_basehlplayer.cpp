@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -44,7 +44,7 @@ END_PREDICTION_DATA()
 void CC_DropPrimary( void )
 {
 	C_BasePlayer *pPlayer = (C_BasePlayer *) C_BasePlayer::GetLocalPlayer();
-	
+
 	if ( pPlayer == NULL )
 		return;
 
@@ -60,6 +60,8 @@ C_BaseHLPlayer::C_BaseHLPlayer()
 {
 	AddVar( &m_Local.m_vecPunchAngle, &m_Local.m_iv_vecPunchAngle, LATCH_SIMULATION_VAR );
 	AddVar( &m_Local.m_vecPunchAngleVel, &m_Local.m_iv_vecPunchAngleVel, LATCH_SIMULATION_VAR );
+	ConVarRef scissor( "r_flashlightscissor" );
+	scissor.SetValue( "0" );
 
 	m_flZoomStart		= 0.0f;
 	m_flZoomEnd			= 0.0f;
@@ -69,8 +71,8 @@ C_BaseHLPlayer::C_BaseHLPlayer()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : updateType - 
+// Purpose:
+// Input  : updateType -
 //-----------------------------------------------------------------------------
 void C_BaseHLPlayer::OnDataChanged( DataUpdateType_t updateType )
 {
@@ -84,7 +86,7 @@ void C_BaseHLPlayer::OnDataChanged( DataUpdateType_t updateType )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void C_BaseHLPlayer::Weapon_DropPrimary( void )
 {
@@ -98,7 +100,7 @@ float C_BaseHLPlayer::GetFOV()
 
 	// Clamp FOV in MP
 	int min_fov = ( gpGlobals->maxClients == 1 ) ? 5 : default_fov.GetInt();
-	
+
 	// Don't let it go too low
 	flFOVOffset = MAX( min_fov, flFOVOffset );
 
@@ -106,7 +108,7 @@ float C_BaseHLPlayer::GetFOV()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 // Output : float
 //-----------------------------------------------------------------------------
 float C_BaseHLPlayer::GetZoom( void )
@@ -133,9 +135,9 @@ float C_BaseHLPlayer::GetZoom( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : FOVOffset - 
-//			time - 
+// Purpose:
+// Input  : FOVOffset -
+//			time -
 //-----------------------------------------------------------------------------
 void C_BaseHLPlayer::Zoom( float FOVOffset, float time )
 {
@@ -148,7 +150,7 @@ void C_BaseHLPlayer::Zoom( float FOVOffset, float time )
 
 //-----------------------------------------------------------------------------
 // Purpose: Hack to zero out player's pitch, use value from poseparameter instead
-// Input  : flags - 
+// Input  : flags -
 // Output : int
 //-----------------------------------------------------------------------------
 int C_BaseHLPlayer::DrawModel( int flags )
@@ -175,7 +177,7 @@ void C_BaseHLPlayer::ExitLadder()
 {
 	if ( MOVETYPE_LADDER != GetMoveType() )
 		return;
-	
+
 	SetMoveType( MOVETYPE_WALK );
 	SetMoveCollide( MOVECOLLIDE_DEFAULT );
 	// Remove from ladder
@@ -194,24 +196,24 @@ bool C_BaseHLPlayer::TestMove( const Vector &pos, float fVertDist, float radius,
 	trace_t trOver;
 	trace_t trDown;
 	float flHit1, flHit2;
-	
+
 	UTIL_TraceHull( GetAbsOrigin(), pos, GetPlayerMins(), GetPlayerMaxs(), MASK_SOLID_BRUSHONLY, this, COLLISION_GROUP_NONE, &trOver );
 	if ( trOver.fraction < 1.0f )
 	{
 		// check if the endpos intersects with the direction the object is travelling.  if it doesn't, this is a good direction to move.
 		if ( objDir.IsZero() ||
-			( IntersectInfiniteRayWithSphere( objPos, objDir, trOver.endpos, radius, &flHit1, &flHit2 ) && 
+			( IntersectInfiniteRayWithSphere( objPos, objDir, trOver.endpos, radius, &flHit1, &flHit2 ) &&
 			( ( flHit1 >= 0.0f ) || ( flHit2 >= 0.0f ) ) )
 			)
 		{
 			// our first trace failed, so see if we can go farther if we step up.
 
 			// trace up to see if we have enough room.
-			UTIL_TraceHull( GetAbsOrigin(), GetAbsOrigin() + Vector( 0, 0, m_Local.m_flStepSize ), 
+			UTIL_TraceHull( GetAbsOrigin(), GetAbsOrigin() + Vector( 0, 0, m_Local.m_flStepSize ),
 				GetPlayerMins(), GetPlayerMaxs(), MASK_SOLID_BRUSHONLY, this, COLLISION_GROUP_NONE, &trUp );
 
 			// do a trace from the stepped up height
-			UTIL_TraceHull( trUp.endpos, pos + Vector( 0, 0, trUp.endpos.z - trUp.startpos.z ), 
+			UTIL_TraceHull( trUp.endpos, pos + Vector( 0, 0, trUp.endpos.z - trUp.startpos.z ),
 				GetPlayerMins(), GetPlayerMaxs(), MASK_SOLID_BRUSHONLY, this, COLLISION_GROUP_NONE, &trOver );
 
 			if ( trOver.fraction < 1.0f )
@@ -227,10 +229,10 @@ bool C_BaseHLPlayer::TestMove( const Vector &pos, float fVertDist, float radius,
 	}
 
 	// trace down to see if this position is on the ground
-	UTIL_TraceLine( trOver.endpos, trOver.endpos - Vector( 0, 0, fVertDist ), 
+	UTIL_TraceLine( trOver.endpos, trOver.endpos - Vector( 0, 0, fVertDist ),
 		MASK_SOLID_BRUSHONLY, NULL, COLLISION_GROUP_NONE, &trDown );
 
-	if ( trDown.fraction == 1.0f ) 
+	if ( trDown.fraction == 1.0f )
 		return false;
 
 	return true;
@@ -282,10 +284,10 @@ void C_BaseHLPlayer::PerformClientSideObstacleAvoidance( float flFrameTime, CUse
 	vAngles.x = 0;
 
 	AngleVectors( vAngles, &currentdir, &rightdir, NULL );
-		
+
 	bool istryingtomove = false;
 	bool ismovingforward = false;
-	if ( fabs( pCmd->forwardmove ) > 0.0f || 
+	if ( fabs( pCmd->forwardmove ) > 0.0f ||
 		fabs( pCmd->sidemove ) > 0.0f )
 	{
 		istryingtomove = true;
@@ -321,7 +323,7 @@ void C_BaseHLPlayer::PerformClientSideObstacleAvoidance( float flFrameTime, CUse
 		Vector vecToObject = obj->GetAbsOrigin() - GetAbsOrigin();
 
 		float flDist = vecToObject.Length2D();
-		
+
 		// Figure out a 2D radius for the object
 		Vector vecWorldMins, vecWorldMaxs;
 		obj->CollisionProp()->WorldSpaceAABB( &vecWorldMins, &vecWorldMaxs );
@@ -382,16 +384,16 @@ void C_BaseHLPlayer::PerformClientSideObstacleAvoidance( float flFrameTime, CUse
 			{
 				Vector vecTryMove = vecNPCTrajectoryRight * iDirection;
 				VectorNormalize( vecTryMove );
-				
+
 				Vector vTestPosition = GetAbsOrigin() + vecTryMove * radius * 2;
 
 				if ( TestMove( vTestPosition, size.z * 2, radius * 2, obj->GetAbsOrigin(), vMoveDir ) )
 				{
 					fwd = currentdir.Dot( vecTryMove );
 					rt = rightdir.Dot( vecTryMove );
-					
+
 					//Msg( "PUSH DEFLECT fwd=%f, rt=%f\n", fwd, rt );
-					
+
 					foundResult = true;
 					break;
 				}
@@ -407,7 +409,7 @@ void C_BaseHLPlayer::PerformClientSideObstacleAvoidance( float flFrameTime, CUse
 			// the object isn't moving, so try moving opposite the way it's facing
 			Vector vecNPCForward;
 			obj->GetVectors( &vecNPCForward, NULL, NULL );
-			
+
 			Vector vTestPosition = GetAbsOrigin() - vecNPCForward * radius * 2;
 			if ( TestMove( vTestPosition, size.z * 2, radius * 2, obj->GetAbsOrigin(), vMoveDir ) )
 			{
@@ -497,7 +499,7 @@ void C_BaseHLPlayer::PerformClientSideObstacleAvoidance( float flFrameTime, CUse
 
 	pCmd->forwardmove	+= adjustforwardmove;
 	pCmd->sidemove		+= adjustsidemove;
-	
+
 	// Clamp the move to within legal limits, preserving direction. This is a little
 	// complicated because we have different limits for forward, back, and side
 
@@ -512,13 +514,13 @@ void C_BaseHLPlayer::PerformClientSideObstacleAvoidance( float flFrameTime, CUse
 	{
 		flForwardScale = fabs( cl_backspeed.GetFloat() ) / fabs( pCmd->forwardmove );
 	}
-	
+
 	float flSideScale = 1.0f;
 	if ( fabs( pCmd->sidemove ) > fabs( cl_sidespeed.GetFloat() ) )
 	{
 		flSideScale = fabs( cl_sidespeed.GetFloat() ) / fabs( pCmd->sidemove );
 	}
-	
+
 	float flScale = MIN( flForwardScale, flSideScale );
 	pCmd->forwardmove *= flScale;
 	pCmd->sidemove *= flScale;
@@ -544,7 +546,7 @@ void C_BaseHLPlayer::PerformClientSideNPCSpeedModifiers( float flFrameTime, CUse
 		if ( pNPC )
 		{
 			float flDist = (GetAbsOrigin() - pNPC->GetAbsOrigin()).LengthSqr();
-			bool bShouldModSpeed = false; 
+			bool bShouldModSpeed = false;
 
 			// Within range?
 			if ( flDist < pNPC->GetSpeedModifyRadius() )
@@ -574,7 +576,7 @@ void C_BaseHLPlayer::PerformClientSideNPCSpeedModifiers( float flFrameTime, CUse
 						{
 							bShouldModSpeed = true;
 						}
-					} 
+					}
 					else
 					{
 						// NPC's not moving, slow down if we're moving at him
@@ -582,7 +584,7 @@ void C_BaseHLPlayer::PerformClientSideNPCSpeedModifiers( float flFrameTime, CUse
 						if ( DotProduct( los, vecMyVelocity ) > 0.8 )
 						{
 							bShouldModSpeed = true;
-						} 
+						}
 					}
 					*/
 
@@ -597,7 +599,7 @@ void C_BaseHLPlayer::PerformClientSideNPCSpeedModifiers( float flFrameTime, CUse
 				m_flExitSpeedMod = m_flSpeedMod;
 				return;
 			}
-			else 
+			else
 			{
 				if ( m_flSpeedMod != pNPC->GetSpeedModifySpeed() )
 				{
@@ -617,7 +619,7 @@ void C_BaseHLPlayer::PerformClientSideNPCSpeedModifiers( float flFrameTime, CUse
 		pCmd->forwardmove = clamp( pCmd->forwardmove, -m_flSpeedMod, m_flSpeedMod );
 	}
 	pCmd->sidemove = clamp( pCmd->sidemove, -m_flSpeedMod, m_flSpeedMod );
-   
+
 	//Msg( "fwd %f right %f\n", pCmd->forwardmove, pCmd->sidemove );
 }
 
@@ -646,4 +648,3 @@ void C_BaseHLPlayer::BuildTransformations( CStudioHdr *hdr, Vector *pos, Quatern
 	BaseClass::BuildTransformations( hdr, pos, q, cameraTransform, boneMask, boneComputed );
 	BuildFirstPersonMeathookTransformations( hdr, pos, q, cameraTransform, boneMask, boneComputed, "ValveBiped.Bip01_Head1" );
 }
-
