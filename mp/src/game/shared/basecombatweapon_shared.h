@@ -191,7 +191,7 @@ public:
 	//  apply the proper filter
 	virtual bool			IsPredicted( void ) const { return false; }
 
-	bool CanDrop( void ){return true;} 
+	bool CanDrop( void ){return true;}
 
 	virtual void			Spawn( void );
 	virtual void			Precache( void );
@@ -550,6 +550,9 @@ public:
 	virtual int				DrawOverriddenViewmodel( C_BaseViewModel *pViewmodel, int flags ) { return 0; };
 	bool					WantsToOverrideViewmodelAttachments( void ) { return false; }
 #endif
+
+	//Tony; notifications of any third person switches.
+	virtual void			ThirdPersonSwitch( bool bThirdPerson ) {};
 
 #endif // End client-only methods
 
