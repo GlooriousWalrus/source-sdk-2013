@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================//
 
@@ -15,6 +15,7 @@
 #endif
 
 #include "weapon_hl2mpbasehlmpcombatweapon.h"
+#include "weapon_hl2mpbase_machinegun.h"
 
 #define	PISTOL_FASTEST_REFIRE_TIME		0.1f
 #define	PISTOL_FASTEST_DRY_REFIRE_TIME	0.2f
@@ -25,19 +26,19 @@
 #ifdef CLIENT_DLL
 #define CWeaponPistol C_WeaponPistol
 #endif
-// // 
+// //
 //-----------------------------------------------------------------------------
 // CWeaponPistol
 //-----------------------------------------------------------------------------
 
-class CWeaponPistol : public CBaseHL2MPCombatWeapon
+class CWeaponPistol : public CHL2MPMachineGun
 {
 public:
-	DECLARE_CLASS( CWeaponPistol, CBaseHL2MPCombatWeapon );
+	DECLARE_CLASS( CWeaponPistol, CHL2MPMachineGun );
 
 	CWeaponPistol(void);
 
-	DECLARE_NETWORKCLASS(); 
+	DECLARE_NETWORKCLASS();
 	DECLARE_PREDICTABLE();
 
 	void	Precache( void );
@@ -50,54 +51,53 @@ public:
     void	Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator ); //enable AI to interact with weapons
 
 	void	UpdatePenaltyTime( void );
-    
+
 #ifndef CLIENT_DLL
     int		CapabilitiesGet( void ) { return bits_CAP_WEAPON_RANGE_ATTACK1; }//gets capabilities
 	Activity	GetPrimaryAttackActivity( void );
 #endif
-    
+
 	virtual bool Reload( void );
 
 	virtual const Vector& GetBulletSpread( void )
-	{	
-        
+	{
+
         // Handle NPCs first
         static Vector npcCone = VECTOR_CONE_5DEGREES;
         if ( GetOwner() && GetOwner()->IsNPC() )
             return npcCone;
-        
+
 		static Vector cone;
 
-		float ramp = RemapValClamped(	m_flAccuracyPenalty, 
-											0.0f, 
-											PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME, 
-											0.0f, 
-											1.0f ); 
+		float ramp = RemapValClamped(	m_flAccuracyPenalty,
+											0.0f,
+											PISTOL_ACCURACY_MAXIMUM_PENALTY_TIME,
+											0.0f,
+											1.0f );
 
 			// We lerp from very accurate to inaccurate over time
 		VectorLerp( VECTOR_CONE_1DEGREES, VECTOR_CONE_6DEGREES, ramp, cone );
 
 		return cone;
 	}
-	
-	virtual int	GetMinBurst() 
-	{ 
-		return 1; 
-	}
 
-	virtual int	GetMaxBurst() 
-	{ 
-		return 3; 
-	}
-
-	virtual float GetFireRate( void ) 
+	virtual int	GetMinBurst()
 	{
-		return 0.5f; 
+		return 1;
 	}
-	
-#ifndef CLIENT_DLL
+
+	virtual int	GetMaxBurst()
+	{
+		return 3;
+	}
+
+	virtual float GetFireRate( void )
+	{
+		return 0.5f;
+	}
+
+
 	DECLARE_ACTTABLE();
-#endif
 
 private:
 	CNetworkVar( float,	m_flSoonestPrimaryAttack );
@@ -137,18 +137,22 @@ END_PREDICTION_DATA()
 LINK_ENTITY_TO_CLASS( weapon_pistol, CWeaponPistol );
 PRECACHE_WEAPON_REGISTER( weapon_pistol );
 
-#ifndef CLIENT_DLL
-acttable_t CWeaponPistol::m_acttable[] = 
+acttable_t CWeaponPistol::m_acttable[] =
 {
-	{ ACT_HL2MP_IDLE,					ACT_HL2MP_IDLE_PISTOL,					false },
-	{ ACT_HL2MP_RUN,					ACT_HL2MP_RUN_PISTOL,					false },
-	{ ACT_HL2MP_IDLE_CROUCH,			ACT_HL2MP_IDLE_CROUCH_PISTOL,			false },
-	{ ACT_HL2MP_WALK_CROUCH,			ACT_HL2MP_WALK_CROUCH_PISTOL,			false },
-	{ ACT_HL2MP_GESTURE_RANGE_ATTACK,	ACT_HL2MP_GESTURE_RANGE_ATTACK_PISTOL,	false },
-	{ ACT_HL2MP_GESTURE_RELOAD,			ACT_HL2MP_GESTURE_RELOAD_PISTOL,		false },
-	{ ACT_HL2MP_JUMP,					ACT_HL2MP_JUMP_PISTOL,					false },
-	{ ACT_RANGE_ATTACK1,				ACT_RANGE_ATTACK_PISTOL,				false },
-    
+	{ ACT_MP_STAND_IDLE,				ACT_HL2MP_IDLE_PISTOL,					false },
+		{ ACT_MP_CROUCH_IDLE,				ACT_HL2MP_IDLE_CROUCH_PISTOL,			false },
+
+		{ ACT_MP_RUN,						ACT_HL2MP_RUN_PISTOL,					false },
+		{ ACT_MP_CROUCHWALK,				ACT_HL2MP_WALK_CROUCH_PISTOL,			false },
+
+		{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,	ACT_HL2MP_GESTURE_RANGE_ATTACK_PISTOL,	false },
+		{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,	ACT_HL2MP_GESTURE_RANGE_ATTACK_PISTOL,	false },
+
+		{ ACT_MP_RELOAD_STAND,				ACT_HL2MP_GESTURE_RELOAD_PISTOL,		false },
+		{ ACT_MP_RELOAD_CROUCH,				ACT_HL2MP_GESTURE_RELOAD_PISTOL,		false },
+
+		{ ACT_MP_JUMP,						ACT_HL2MP_JUMP_PISTOL,					false },
+
     { ACT_IDLE,						    ACT_IDLE_PISTOL,				        true  },
     { ACT_IDLE_ANGRY,				    ACT_IDLE_ANGRY_PISTOL,			true },
     { ACT_RANGE_ATTACK1,			    ACT_RANGE_ATTACK_PISTOL,		true },
@@ -163,13 +167,12 @@ acttable_t CWeaponPistol::m_acttable[] =
     { ACT_GESTURE_RELOAD,			ACT_GESTURE_RELOAD_PISTOL,		false },
     { ACT_WALK,						ACT_WALK_PISTOL,				false },
     { ACT_RUN,						ACT_RUN_PISTOL,					false },
-    
+
 };
 
 
 IMPLEMENT_ACTTABLE( CWeaponPistol );
 
-#endif
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor
@@ -188,7 +191,7 @@ CWeaponPistol::CWeaponPistol( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CWeaponPistol::Precache( void )
 {
@@ -233,7 +236,7 @@ void CWeaponPistol::DryFire( void )
 {
 	WeaponSound( EMPTY );
 	SendWeaponAnim( ACT_VM_DRYFIRE );
-	
+
 	m_flSoonestPrimaryAttack	= gpGlobals->curtime + PISTOL_FASTEST_DRY_REFIRE_TIME;
 	m_flNextPrimaryAttack		= gpGlobals->curtime + SequenceDuration();
 }
@@ -254,7 +257,7 @@ void CWeaponPistol::PrimaryAttack( void )
 
 	m_flLastAttackTime = gpGlobals->curtime;
 	m_flSoonestPrimaryAttack = gpGlobals->curtime + PISTOL_FASTEST_REFIRE_TIME;
-    
+
 #ifndef CLIENT_DLL
 	CSoundEnt::InsertSound( SOUND_COMBAT, GetAbsOrigin(), SOUNDENT_VOLUME_PISTOL, 0.2, GetOwner() );
 #endif
@@ -277,7 +280,7 @@ void CWeaponPistol::PrimaryAttack( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CWeaponPistol::UpdatePenaltyTime( void )
 {
@@ -295,7 +298,7 @@ void CWeaponPistol::UpdatePenaltyTime( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CWeaponPistol::ItemPreFrame( void )
 {
@@ -305,7 +308,7 @@ void CWeaponPistol::ItemPreFrame( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CWeaponPistol::ItemBusyFrame( void )
 {
@@ -323,12 +326,12 @@ void CWeaponPistol::ItemPostFrame( void )
 
 	if ( m_bInReload )
 		return;
-	
+
 	CBasePlayer *pOwner = ToBasePlayer( GetOwner() );
 
 	if ( pOwner == NULL )
 		return;
-	
+
 	if ( pOwner->m_nButtons & IN_ATTACK2 )
 	{
 		m_flLastAttackTime = gpGlobals->curtime + PISTOL_FASTEST_REFIRE_TIME;
@@ -349,7 +352,7 @@ void CWeaponPistol::ItemPostFrame( void )
 
 #ifndef CLIENT_DLL
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 // Output : int
 //-----------------------------------------------------------------------------
 Activity CWeaponPistol::GetPrimaryAttackActivity( void )
@@ -376,18 +379,19 @@ bool CWeaponPistol::Reload( void )
 	if ( fRet )
 	{
 		WeaponSound( RELOAD );
+		ToHL2MPPlayer(GetOwner())->DoAnimationEvent( PLAYERANIMEVENT_RELOAD );
 		m_flAccuracyPenalty = 0.0f;
 	}
 	return fRet;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CWeaponPistol::AddViewKick( void )
 {
 	CBasePlayer *pPlayer  = ToBasePlayer( GetOwner() );
-	
+
 	if ( pPlayer == NULL )
 		return;
 

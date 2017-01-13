@@ -63,7 +63,7 @@ bool IsInCommentaryMode( void );
 
 #define ALYX_DARKNESS_LOST_PLAYER_DIST	( 120 * 120 ) // 12 feet
 
-#define ALYX_MIN_MOB_DIST_SQR Square(120)		// Any enemy closer than this adds to the 'mob' 
+#define ALYX_MIN_MOB_DIST_SQR Square(120)		// Any enemy closer than this adds to the 'mob'
 #define ALYX_MIN_CONSIDER_DIST	Square(1200)	// Only enemies within this range are counted and considered to generate AI speech
 
 #define CONCEPT_ALYX_REQUEST_ITEM		"TLK_ALYX_REQUEST_ITEM"
@@ -103,7 +103,7 @@ BEGIN_DATADESC( CNPC_Alyx )
 	DEFINE_FIELD( m_flNextCrouchTime, FIELD_TIME ),
 	DEFINE_FIELD( m_WeaponType, FIELD_INTEGER ),
 	DEFINE_KEYFIELD( m_bShouldHaveEMP, FIELD_BOOLEAN, "ShouldHaveEMP" ),
-	
+
 	DEFINE_SOUNDPATCH( m_sndDarknessBreathing ),
 
 	DEFINE_EMBEDDED( m_SpeechWatch_LostPlayer ),
@@ -166,7 +166,7 @@ CNPC_Alyx::~CNPC_Alyx( )
 }
 
 //=========================================================
-// Classify - indicates this NPC's place in the 
+// Classify - indicates this NPC's place in the
 // relationship table.
 //=========================================================
 Class_T	CNPC_Alyx::Classify ( void )
@@ -193,7 +193,7 @@ bool CNPC_Alyx::FValidateHintType( CAI_Hint *pHint )
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-int CNPC_Alyx::ObjectCaps() 
+int CNPC_Alyx::ObjectCaps()
 {
 	int caps = BaseClass::ObjectCaps();
 
@@ -301,7 +301,7 @@ CNPC_Alyx *CNPC_Alyx::GetAlyx( void )
 }
 
 //=========================================================
-// 
+//
 //=========================================================
 bool CNPC_Alyx::CreateBehaviors()
 {
@@ -352,7 +352,7 @@ void CNPC_Alyx::Spawn()
 	m_bDontPickupWeapons = true;
 
 	m_bDarknessSpeechAllowed = true;
-		
+
 	m_fCombatStartTime = 0.0f;
 	m_fCombatEndTime   = 0.0f;
 
@@ -384,10 +384,10 @@ void CNPC_Alyx::Precache()
 	CLASSNAME_SMG1 = AllocPooledString( "weapon_smg1" );
 	CLASSNAME_SHOTGUN = AllocPooledString( "weapon_shotgun" );
 	CLASSNAME_AR2 = AllocPooledString( "weapon_ar2" );
-}	
+}
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CNPC_Alyx::Activate( void )
 {
@@ -398,7 +398,7 @@ void CNPC_Alyx::Activate( void )
 	BaseClass::Activate();
 
 	// Alyx always assumes she has said hello to Gordon!
-	SetSpokeConcept( TLK_HELLO, NULL, false );	
+	SetSpokeConcept( TLK_HELLO, NULL, false );
 
 	// Add my personal concepts
 	CAI_AllySpeechManager *pSpeechManager = GetAllySpeechManager();
@@ -431,7 +431,7 @@ void CNPC_Alyx::Activate( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CNPC_Alyx::StopLoopingSounds( void )
 {
@@ -442,7 +442,7 @@ void CNPC_Alyx::StopLoopingSounds( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CNPC_Alyx::SelectModel()
 {
@@ -456,7 +456,7 @@ void CNPC_Alyx::SelectModel()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CNPC_Alyx::SetupAlyxWithoutParent( void )
 {
@@ -597,7 +597,7 @@ void CNPC_Alyx::ReadinessLevelChanged( int iPriorLevel )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CNPC_Alyx::PrescheduleThink( void )
 {
@@ -643,7 +643,7 @@ void CNPC_Alyx::PrescheduleThink( void )
 		// be sure, we wait a bit to prevent this from happening.
 		if ( m_fStayBlindUntil < gpGlobals->curtime )
 		{
- 			CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);
+ 			CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
  			if ( pPlayer && (!CanBeBlindedByFlashlight( true ) || !pPlayer->IsIlluminatedByFlashlight(this, NULL ) || !PlayerFlashlightOnMyEyes( pPlayer )) &&
 				!BlindedByFlare() )
 			{
@@ -654,7 +654,7 @@ void CNPC_Alyx::PrescheduleThink( void )
 				// Allow firing again, but prevent myself from firing until I'm done
 				GetShotRegulator()->EnableShooting();
 				GetShotRegulator()->FireNoEarlierThan( gpGlobals->curtime + 1.0 );
-				
+
 				m_bIsFlashlightBlind = false;
 				m_flDontBlindUntil = gpGlobals->curtime + RandomFloat( 1, 3 );
 			}
@@ -688,7 +688,7 @@ void CNPC_Alyx::SearchForInteractTargets()
 		return;
 	}
 
-	CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);
+	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
 
 	if( !pPlayer )
 	{
@@ -721,7 +721,7 @@ void CNPC_Alyx::GatherConditions()
 
 	if( HasCondition( COND_HEAR_DANGER ) )
 	{
-		// Don't let Alyx worry about combat sounds if she's panicking 
+		// Don't let Alyx worry about combat sounds if she's panicking
 		// from danger sounds. This prevents her from running ALERT_FACE_BEST_SOUND
 		// as soon as a grenade explodes (which makes a loud combat sound). If Alyx
 		// is NOT panicking over a Danger sound, she'll hear the combat sounds as normal.
@@ -732,7 +732,7 @@ void CNPC_Alyx::GatherConditions()
 	ClearCondition( COND_ALYX_PLAYER_FLASHLIGHT_EXPIRED );
 	ClearCondition( COND_ALYX_PLAYER_TURNED_ON_FLASHLIGHT );
 	ClearCondition( COND_ALYX_PLAYER_TURNED_OFF_FLASHLIGHT );
-	CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);
+	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
 	if ( pPlayer )
 	{
 		bool bFlashlightState = pPlayer->FlashlightIsOn() != 0;
@@ -809,7 +809,7 @@ void CNPC_Alyx::GatherConditions()
 	// Check for explosions!
 	if( HasCondition(COND_HEAR_COMBAT) )
 	{
-		CSound *pSound = GetBestSound(); 
+		CSound *pSound = GetBestSound();
 
 		if ( IsInAVehicle() == false )  // For now, don't do these animations while in the vehicle
 		{
@@ -861,12 +861,12 @@ bool CNPC_Alyx::ShouldPlayerAvoid( void )
 				return true;
 		}
 	}
-#endif 
+#endif
 	return BaseClass::ShouldPlayerAvoid();
 }
 
 //-----------------------------------------------------------------------------
-// Just heard a gunfire sound. Try to figure out how much we should know 
+// Just heard a gunfire sound. Try to figure out how much we should know
 // about it.
 //-----------------------------------------------------------------------------
 void CNPC_Alyx::AnalyzeGunfireSound( CSound *pSound )
@@ -875,7 +875,7 @@ void CNPC_Alyx::AnalyzeGunfireSound( CSound *pSound )
 
 	if( GetState() != NPC_STATE_ALERT && GetState() != NPC_STATE_IDLE )
 	{
-		// Only have code for IDLE and ALERT now. 
+		// Only have code for IDLE and ALERT now.
 		return;
 	}
 
@@ -945,8 +945,8 @@ bool CNPC_Alyx::IsValidEnemy( CBaseEntity *pEnemy )
 			// Don't let turrets that can't shoot me distract me from my assault behavior.
 			// This fixes a very specific problem that appeared in Episode 2 map ep2_outland_09
 			// Where Alyx wouldn't terminate an assault while standing on an assault point because
-			// she was afraid of a turret that was visible from the assault point, but facing the 
-			// other direction and thus not a threat. 
+			// she was afraid of a turret that was visible from the assault point, but facing the
+			// other direction and thus not a threat.
 			return false;
 		}
 	}
@@ -955,7 +955,7 @@ bool CNPC_Alyx::IsValidEnemy( CBaseEntity *pEnemy )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CNPC_Alyx::Event_Killed( const CTakeDamageInfo &info )
 {
@@ -1000,7 +1000,7 @@ void CNPC_Alyx::Event_KilledOther( CBaseEntity *pVictim, const CTakeDamageInfo &
 		AddEntityRelationship( pTarget, IRelationType(pVictim), IRelationPriority(pVictim) );
 
 		// Update or Create a memory entry for this target and make Alyx think she's seen this target recently.
-		// This prevents the baseclass from not recognizing this target and forcing Alyx into 
+		// This prevents the baseclass from not recognizing this target and forcing Alyx into
 		// SCHED_WAKE_ANGRY, which wastes time and causes her to change animation sequences rapidly.
 		GetEnemies()->UpdateMemory( GetNavigator()->GetNetwork(), pTarget, pTarget->GetAbsOrigin(), 0.0f, true );
 		AI_EnemyInfo_t *pMemory = GetEnemies()->Find( pTarget );
@@ -1032,7 +1032,7 @@ void CNPC_Alyx::EnemyIgnited( CAI_BaseNPC *pVictim )
 void CNPC_Alyx::CombineBallSocketed( int iNumBounces )
 {
 	CBasePlayer *pPlayer = UTIL_GetNearestVisiblePlayer(this);
-	
+
 	if ( !pPlayer || !FVisible(pPlayer) )
 	{
 		return;
@@ -1123,7 +1123,7 @@ void CNPC_Alyx::DoMobbedCombatAI( void )
 	// Say a combat thing
 	if( HasCondition( COND_MOBBED_BY_ENEMIES ) )
 	{
-		SpeakIfAllowed( TLK_MOBBED );		
+		SpeakIfAllowed( TLK_MOBBED );
 	}
 	else if( visibleEnemiesScore > 4 )
 	{
@@ -1171,7 +1171,7 @@ void CNPC_Alyx::DoCustomCombatAI( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CNPC_Alyx::DoCustomSpeechAI( void )
 {
@@ -1195,7 +1195,7 @@ void CNPC_Alyx::DoCustomSpeechAI( void )
 				SpeakIfAllowed( "TLK_SPOTTED_HEADCRAB_LEAVING_ZOMBIE" );
 			}
 		}
-		else if ( GetEnemy()->Classify() == CLASS_ZOMBIE ) 
+		else if ( GetEnemy()->Classify() == CLASS_ZOMBIE )
 		{
 			CNPC_BaseZombie *pZombie = assert_cast<CNPC_BaseZombie*>(GetEnemy());
 			// If we see a zombie getting up, mention it
@@ -1212,7 +1212,7 @@ void CNPC_Alyx::DoCustomSpeechAI( void )
 	{
 		// Even though the darkness light system will take flares into account when Alyx
 		// says she's lost the player in the darkness, players still think she's silly
-		// when they're too far from the flare to be seen. 
+		// when they're too far from the flare to be seen.
 		// So, check for lit flares or other dynamic lights, and don't do
 		// a bunch of the darkness speech if there's a lit flare nearby.
   		bool bNearbyFlare = DarknessLightSourceWithinRadius( this, 500 );
@@ -1225,11 +1225,11 @@ void CNPC_Alyx::DoCustomSpeechAI( void )
 				if ( !m_sndDarknessBreathing )
 				{
 					CPASAttenuationFilter filter( this );
-					m_sndDarknessBreathing = CSoundEnvelopeController::GetController().SoundCreate( filter, entindex(), CHAN_STATIC, 
+					m_sndDarknessBreathing = CSoundEnvelopeController::GetController().SoundCreate( filter, entindex(), CHAN_STATIC,
 						"ep_01.al_dark_breathing01", SNDLVL_TALKING );
 					CSoundEnvelopeController::GetController().Play( m_sndDarknessBreathing, 0.0f, PITCH_NORM );
 				}
-				
+
 				if ( m_sndDarknessBreathing )
 				{
  					CSoundEnvelopeController::GetController().SoundChangeVolume( m_sndDarknessBreathing, ALYX_BREATHING_VOLUME_MAX, RandomFloat(10,20) );
@@ -1241,7 +1241,7 @@ void CNPC_Alyx::DoCustomSpeechAI( void )
 		// If we lose an enemy due to the flashlight, comment about it
 		if ( !HasCondition( COND_SEE_ENEMY ) && m_bHadCondSeeEnemy && !HasCondition( COND_TALKER_PLAYER_DEAD ) )
 		{
-			if ( m_bDarknessSpeechAllowed && HasCondition( COND_ALYX_PLAYER_TURNED_OFF_FLASHLIGHT ) && 
+			if ( m_bDarknessSpeechAllowed && HasCondition( COND_ALYX_PLAYER_TURNED_OFF_FLASHLIGHT ) &&
 				GetEnemy() && ( GetEnemy()->Classify() != CLASS_BULLSEYE ) )
 			{
 				SpeakIfAllowed( "TLK_DARKNESS_LOSTENEMY_BY_FLASHLIGHT" );
@@ -1251,8 +1251,8 @@ void CNPC_Alyx::DoCustomSpeechAI( void )
 			{
 				SpeakIfAllowed( "TLK_DARKNESS_LOSTENEMY_BY_FLASHLIGHT_EXPIRED" );
 			}
-			else if ( m_bDarknessSpeechAllowed && GetEnemy() && ( GetEnemy()->Classify() != CLASS_BULLSEYE ) && 
-				pPlayer && pPlayer->FlashlightIsOn() && !pPlayer->IsIlluminatedByFlashlight(GetEnemy(), NULL ) && 
+			else if ( m_bDarknessSpeechAllowed && GetEnemy() && ( GetEnemy()->Classify() != CLASS_BULLSEYE ) &&
+				pPlayer && pPlayer->FlashlightIsOn() && !pPlayer->IsIlluminatedByFlashlight(GetEnemy(), NULL ) &&
 				FVisible( GetEnemy() ) )
 			{
 				SpeakIfAllowed( TLK_DARKNESS_ENEMY_IN_DARKNESS );
@@ -1279,14 +1279,14 @@ void CNPC_Alyx::DoCustomSpeechAI( void )
 			}
 		}
 
-		// If we've just seen a new enemy, and it's illuminated by the flashlight, 
+		// If we've just seen a new enemy, and it's illuminated by the flashlight,
 		// tell the player to keep the flashlight on 'em.
 		if ( HasCondition(COND_NEW_ENEMY) && !HasCondition( COND_TALKER_PLAYER_DEAD ) )
 		{
 			// First time we've seen this guy?
 			if ( gpGlobals->curtime - GetEnemies()->FirstTimeSeen(GetEnemy()) < 0.5 )
 			{
-				if ( pPlayer && pPlayer->IsIlluminatedByFlashlight(GetEnemy(), NULL ) && m_bDarknessSpeechAllowed && 
+				if ( pPlayer && pPlayer->IsIlluminatedByFlashlight(GetEnemy(), NULL ) && m_bDarknessSpeechAllowed &&
 					!LookerCouldSeeTargetInDarkness( this, GetEnemy() ) )
 				{
 					SpeakIfAllowed( "TLK_DARKNESS_FOUNDENEMY_BY_FLASHLIGHT" );
@@ -1388,7 +1388,7 @@ void CNPC_Alyx::DoCustomSpeechAI( void )
 	// If we spoke lost-player, and now we see him/her, say so
  	if ( m_bSpokeLostPlayerInDarkness )
 	{
-		// If we've left darkness mode, or if the player has blinded me with 
+		// If we've left darkness mode, or if the player has blinded me with
 		// the flashlight, don't bother speaking the found player line.
 		if ( !m_bIsFlashlightBlind && HL2GameRules()->IsAlyxInDarknessMode() && m_bDarknessSpeechAllowed )
 		{
@@ -1426,7 +1426,7 @@ void CNPC_Alyx::DoCustomSpeechAI( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 bool CNPC_Alyx::SpeakIfAllowed( AIConcept_t concept, const char *modifiers /*= NULL*/, bool bRespondingToPlayer /*= false*/, char *pszOutResponseChosen /*= NULL*/, size_t bufsize /* = 0 */ )
 {
@@ -1527,9 +1527,9 @@ int CNPC_Alyx::IRelationPriority( CBaseEntity *pTarget )
 #define ALYX_360_VIEW_DIST_SQR	129600 // 30 feet
 bool CNPC_Alyx::FInViewCone( CBaseEntity *pEntity )
 {
-	// Alyx can see 360 degrees but only at limited distance. This allows her to be aware of a 
-	// large mob of enemies (usually antlions or zombies) closing in. This situation is so obvious to the 
-	// player that it doesn't make sense for Alyx to be unaware of the entire group simply because she 
+	// Alyx can see 360 degrees but only at limited distance. This allows her to be aware of a
+	// large mob of enemies (usually antlions or zombies) closing in. This situation is so obvious to the
+	// player that it doesn't make sense for Alyx to be unaware of the entire group simply because she
 	// hasn't seen all of the enemies with her own eyes.
 	if( ( pEntity->IsNPC() || pEntity->IsPlayer() ) && pEntity->GetAbsOrigin().DistToSqr(GetAbsOrigin()) <= ALYX_360_VIEW_DIST_SQR )
 	{
@@ -1549,8 +1549,8 @@ bool CNPC_Alyx::FInViewCone( CBaseEntity *pEntity )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pEntity - 
+// Purpose:
+// Input  : *pEntity -
 //-----------------------------------------------------------------------------
 bool CNPC_Alyx::CanSeeEntityInDarkness( CBaseEntity *pEntity )
 {
@@ -1564,7 +1564,7 @@ bool CNPC_Alyx::CanSeeEntityInDarkness( CBaseEntity *pEntity )
 	}
 	*/
 
-	CBasePlayer *pPlayer = UTIL_PlayerByIndex(1);
+	CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
 	if ( pPlayer && pEntity != pPlayer )
 	{
 		if ( pPlayer->IsIlluminatedByFlashlight(pEntity, NULL ) )
@@ -1611,7 +1611,7 @@ Activity CNPC_Alyx::NPC_TranslateActivity( Activity activity )
 
 	switch ( activity )
 	{
-		// !!!HACK - Alyx doesn't have the required animations for shotguns, 
+		// !!!HACK - Alyx doesn't have the required animations for shotguns,
 		// so trick her into using the rifle counterparts for now (sjb)
 		case ACT_RUN_AIM_SHOTGUN:			return ACT_RUN_AIM_RIFLE;
 		case ACT_WALK_AIM_SHOTGUN:			return ACT_WALK_AIM_RIFLE;
@@ -1658,7 +1658,7 @@ void CNPC_Alyx::BuildScheduleTestBits()
 	}
 
 	// This nugget fixes a bug where Alyx will continue to attack an enemy she no longer hates in the
-	// case where her relationship with the enemy changes while she's running a SCHED_SCENE_GENERIC. 
+	// case where her relationship with the enemy changes while she's running a SCHED_SCENE_GENERIC.
 	// Since we don't run ChooseEnemy() when we're running a schedule that doesn't interrupt on COND_NEW_ENEMY,
 	// we also do not re-evaluate and flush enemies we don't hate anymore. (sjb 6/9/2005)
 	if( IsCurSchedule(SCHED_SCENE_GENERIC) && GetEnemy() && GetEnemy()->VPhysicsGetObject() )
@@ -1777,7 +1777,7 @@ int CNPC_Alyx::SelectScheduleDanger( void )
 			SpeakIfAllowed( TLK_DANGER_ZOMBINE_GRENADE );
 		}
 	}
-	
+
 	return BaseClass::SelectScheduleDanger();
 }
 
@@ -1833,7 +1833,7 @@ int CNPC_Alyx::TranslateSchedule( int scheduleType )
 				}
 
 				// Are we supposed to be crouching?
-				if ( IsCrouching() || ( CrouchIsDesired() && !HasCondition( COND_HEAVY_DAMAGE ) ) ) 
+				if ( IsCrouching() || ( CrouchIsDesired() && !HasCondition( COND_HEAVY_DAMAGE ) ) )
 				{
 					// See if they're a valid crouch target
 					if ( EnemyIsValidCrouchTarget( pEnemy ) )
@@ -1897,8 +1897,8 @@ int CNPC_Alyx::TranslateSchedule( int scheduleType )
 	case SCHED_RUN_RANDOM:
 		if( GetEnemy() && HasCondition(COND_SEE_ENEMY) && GetActiveWeapon() )
 		{
-			// SCHED_RUN_RANDOM is a last ditch effort, it's the bottom of a chain of 
-			// sequential schedule failures. Since this can cause Alyx to freeze up, 
+			// SCHED_RUN_RANDOM is a last ditch effort, it's the bottom of a chain of
+			// sequential schedule failures. Since this can cause Alyx to freeze up,
 			// just let her fight if she can. (sjb).
 			return SCHED_RANGE_ATTACK1;
 		}
@@ -1910,7 +1910,7 @@ int CNPC_Alyx::TranslateSchedule( int scheduleType )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CNPC_Alyx::StartTask( const Task_t *pTask )
 {
@@ -1983,7 +1983,7 @@ void CNPC_Alyx::StartTask( const Task_t *pTask )
 				GetNavigator()->StopMoving( false );
 
 				// E3 Hack
-				if ( HasPoseMoveYaw() ) 
+				if ( HasPoseMoveYaw() )
 				{
 					SetPoseParameter( m_poseMove_Yaw, 0 );
 				}
@@ -2449,7 +2449,7 @@ void CNPC_Alyx::DeathSound( const CTakeDamageInfo &info )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CNPC_Alyx::OnSeeEntity( CBaseEntity *pEntity )
 {
@@ -2511,7 +2511,7 @@ bool CNPC_Alyx::IsValidInteractTarget( CBaseEntity *pTarget )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CNPC_Alyx::SetInteractTarget( CBaseEntity *pTarget )
 {
@@ -2543,7 +2543,7 @@ void CNPC_Alyx::EmpZapTarget( CBaseEntity *pTarget )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 bool CNPC_Alyx::CanInteractWithTarget( CBaseEntity *pTarget )
 {
@@ -2619,7 +2619,7 @@ void CNPC_Alyx::CheckBlindedByFlare( void )
 		if ( SpeakIfAllowed( "TLK_FLASHLIGHT_ILLUM", NULL, false, szResponse, AI_Response::MAX_RESPONSE_NAME ) )
 		{
 			m_iszCurrentBlindScene = AllocPooledString( szResponse );
-			ADD_DEBUG_HISTORY( HISTORY_ALYX_BLIND, UTIL_VarArgs( "(%0.2f) Alyx: start flare blind scene '%s'\n", gpGlobals->curtime, 
+			ADD_DEBUG_HISTORY( HISTORY_ALYX_BLIND, UTIL_VarArgs( "(%0.2f) Alyx: start flare blind scene '%s'\n", gpGlobals->curtime,
 				STRING(m_iszCurrentBlindScene) ) );
 			GetShotRegulator()->DisableShooting();
 			m_bIsFlashlightBlind = true;
@@ -2629,7 +2629,7 @@ void CNPC_Alyx::CheckBlindedByFlare( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 // Input:   bCheckLightSources - if true, checks if any light darkness lightsources are near
 //-----------------------------------------------------------------------------
 bool CNPC_Alyx::CanBeBlindedByFlashlight( bool bCheckLightSources )
@@ -2675,8 +2675,8 @@ bool CNPC_Alyx::CanBeBlindedByFlashlight( bool bCheckLightSources )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pPlayer - 
+// Purpose:
+// Input  : *pPlayer -
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
 bool CNPC_Alyx::PlayerFlashlightOnMyEyes( CBasePlayer *pPlayer )
@@ -2686,7 +2686,7 @@ bool CNPC_Alyx::PlayerFlashlightOnMyEyes( CBasePlayer *pPlayer )
  	pPlayer->EyeVectors( &vecPlayerForward );
 
 	Vector vecToEyes = (vecEyes - pPlayer->EyePosition());
-	float flDist = VectorNormalize( vecToEyes ); 
+	float flDist = VectorNormalize( vecToEyes );
 
 	// We can be blinded in daylight, but only at close range
 	if ( HL2GameRules()->IsAlyxInDarknessMode() == false )
@@ -2710,7 +2710,7 @@ bool CNPC_Alyx::PlayerFlashlightOnMyEyes( CBasePlayer *pPlayer )
 
 //-----------------------------------------------------------------------------
 // Purpose: Checks if Alyx is blinded by a flare
-// Input  : 
+// Input  :
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
 bool CNPC_Alyx::BlindedByFlare( void )
@@ -2729,7 +2729,7 @@ bool CNPC_Alyx::BlindedByFlare( void )
 	while( pFlare != NULL )
 	{
 		vecToEyes = (vecEyes - pFlare->GetAbsOrigin());
-		float fDist = VectorNormalize( vecToEyes ); 
+		float fDist = VectorNormalize( vecToEyes );
 		if ( fDist < fBlindDist )
 		{
 			// Check facing to ensure we're in front of her
@@ -2750,7 +2750,7 @@ bool CNPC_Alyx::BlindedByFlare( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
 bool CNPC_Alyx::CanReload( void )
@@ -2782,10 +2782,10 @@ bool CNPC_Alyx::PickTacticalLookTarget( AILookTargetArgs_t *pArgs )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CNPC_Alyx::OnSelectedLookTarget( AILookTargetArgs_t *pArgs )
-{ 
+{
 	if ( pArgs && pArgs->hTarget )
 	{
 		// If it's a stealth target, we want to go into stealth mode
@@ -2821,7 +2821,7 @@ CAI_FollowBehavior &CNPC_Alyx::GetFollowBehavior( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CNPC_Alyx::AimGun( void )
 {
@@ -2876,7 +2876,7 @@ Vector CNPC_Alyx::GetActualShootPosition( const Vector &shootOrigin )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 bool CNPC_Alyx::EnemyIsValidCrouchTarget( CBaseEntity *pEnemy )
 {
@@ -2897,7 +2897,7 @@ bool CNPC_Alyx::EnemyIsValidCrouchTarget( CBaseEntity *pEnemy )
 		//Warning("CROUCH: Not valid due to enemy-too-close.\n" );
 		return false;
 	}
-	
+
 	// Don't crouch to shoot enemies that are too far off my vertical plane
 	if ( fabs( pEnemy->GetAbsOrigin().z - GetAbsOrigin().z ) > 64 )
 		return false;
@@ -2917,7 +2917,7 @@ float CNPC_Alyx::MaxYawSpeed( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 bool CNPC_Alyx::Stand( void )
 {
@@ -2935,7 +2935,7 @@ bool CNPC_Alyx::Stand( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 bool CNPC_Alyx::Crouch( void )
 {
@@ -2959,7 +2959,7 @@ bool CNPC_Alyx::Crouch( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CNPC_Alyx::DesireCrouch( void )
 {
@@ -2988,7 +2988,7 @@ void CNPC_Alyx::ModifyOrAppendCriteria( AI_CriteriaSet &set )
 	{
 		fLengthOfLastCombat = m_fCombatEndTime - m_fCombatStartTime;
 	}
-	
+
 	set.AppendCriteria( "combat_length", UTIL_VarArgs( "%.3f", fLengthOfLastCombat ) );
 
 	iNumEnemies = 0;
@@ -3040,7 +3040,7 @@ bool CNPC_Alyx::IsAllowedToInteract()
 			return false;
 		}
 	}
-	
+
 	return m_bInteractionAllowed;
 }
 
@@ -3092,8 +3092,8 @@ bool CNPC_Alyx::Weapon_CanUse( CBaseCombatWeapon *pWeapon )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  :  - 
+// Purpose:
+// Input  :  -
 //-----------------------------------------------------------------------------
 void CNPC_Alyx::OnUpdateShotRegulator( )
 {
@@ -3116,7 +3116,7 @@ void CNPC_Alyx::BarnacleDeathSound( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 // Output : PassengerState_e
 //-----------------------------------------------------------------------------
 PassengerState_e CNPC_Alyx::GetPassengerState( void )
@@ -3142,7 +3142,7 @@ void CNPC_Alyx::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE use
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 bool CNPC_Alyx::PlayerInSpread( const Vector &sourcePos, const Vector &targetPos, float flSpread, float maxDistOffCenter, bool ignoreHatedPlayers )
 {
@@ -3167,7 +3167,7 @@ bool CNPC_Alyx::PlayerInSpread( const Vector &sourcePos, const Vector &targetPos
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 bool CNPC_Alyx::IsCrouchedActivity( Activity activity )
 {
@@ -3198,7 +3198,7 @@ bool CNPC_Alyx::IsCrouchedActivity( Activity activity )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 bool CNPC_Alyx::OnBeginMoveAndShoot()
 {
@@ -3212,7 +3212,7 @@ bool CNPC_Alyx::OnBeginMoveAndShoot()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CNPC_Alyx::SpeakAttacking( void )
 {
@@ -3224,9 +3224,9 @@ void CNPC_Alyx::SpeakAttacking( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *lpszInteractionName - 
-//			*pOther - 
+// Purpose:
+// Input  : *lpszInteractionName -
+//			*pOther -
 // Output : Returns true on success, false on failure.
 //-----------------------------------------------------------------------------
 bool CNPC_Alyx::ForceVehicleInteraction( const char *lpszInteractionName, CBaseCombatCharacter *pOther )
@@ -3285,8 +3285,8 @@ void CNPC_Alyx::InputVehiclePunted( inputdata_t &inputdata )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &inputdata - 
+// Purpose:
+// Input  : &inputdata -
 //-----------------------------------------------------------------------------
 void CNPC_Alyx::InputOutsideTransition( inputdata_t &inputdata )
 {
@@ -3540,7 +3540,7 @@ AI_BEGIN_CUSTOM_NPC( npc_alyx, CNPC_Alyx )
 			"		TASK_FACE_TARGET						0"
 			"		TASK_WEAPON_PICKUP						0"
 			"		TASK_WAIT								1"// Don't move before done standing up
-			""	
+			""
 			"	Interrupts"
 		)
 

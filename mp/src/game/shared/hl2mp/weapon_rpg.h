@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -28,14 +28,14 @@
 class CWeaponRPG;
 class CLaserDot;
 class RocketTrail;
- 
+
 //###########################################################################
 //	>> CMissile		(missile launcher class is below this one!)
 //###########################################################################
 class CMissile : public CBaseCombatCharacter
 {
 	DECLARE_CLASS( CMissile, CBaseCombatCharacter );
-    
+
 
 public:
     static const int EXPLOSION_RADIUS = 200;
@@ -48,7 +48,7 @@ public:
 #else
 	Class_T Classify( void ) { return CLASS_MISSILE; }
 #endif
-	
+
 	void	Spawn( void );
 	void	Precache( void );
 	void	MissileTouch( CBaseEntity *pOther );
@@ -58,16 +58,16 @@ public:
 	void	AugerThink( void );
 	void	IgniteThink( void );
 	void	SeekThink( void );
-        
+
         // Create a dumb think method. This should make it so the rpg obeys gravity.
         void    DumbThink( void );
-        
+
 	void	DumbFire( void );
 	void	SetGracePeriod( float flGracePeriod );
 
 	int		OnTakeDamage_Alive( const CTakeDamageInfo &info );
 	void	Event_Killed( const CTakeDamageInfo &info );
-	
+
 	virtual float	GetDamage() { return m_flDamage; }
 	virtual void	SetDamage(float flDamage) { m_flDamage = flDamage; }
 
@@ -83,28 +83,28 @@ public:
 	static void RemoveCustomDetonator( CBaseEntity *pEntity );
 
 protected:
-	virtual void DoExplosion();	
+	virtual void DoExplosion();
 	virtual void ComputeActualDotPosition( CLaserDot *pLaserDot, Vector *pActualDotPosition, float *pHomingSpeed );
 	virtual int AugerHealth() { return m_iMaxHealth - 20; }
 
 	// Creates the smoke trail
 	void CreateSmokeTrail( void );
 
-	// Gets the shooting position 
+	// Gets the shooting position
 	void GetShootPosition( CLaserDot *pLaserDot, Vector *pShootPosition );
 
 	CHandle<RocketTrail>	m_hRocketTrail;
 	float					m_flAugerTime;		// Amount of time to auger before blowing up anyway
 	float					m_flMarkDeadTime;
 	float					m_flDamage;
-    
+
     struct CustomDetonator_t
     {
         EHANDLE hEntity;
         float radiusSq;
         float halfHeight;
     };
-    
+
     static CUtlVector<CustomDetonator_t> gm_CustomDetonators;
 
 private:
@@ -151,7 +151,7 @@ public:
 	CAPCMissile			*m_pNext;
 
 protected:
-	virtual void DoExplosion();	
+	virtual void DoExplosion();
 	virtual void ComputeActualDotPosition( CLaserDot *pLaserDot, Vector *pActualDotPosition, float *pHomingSpeed );
 	virtual int AugerHealth();
 
@@ -195,7 +195,7 @@ public:
 	CWeaponRPG();
 	~CWeaponRPG();
 
-	DECLARE_NETWORKCLASS(); 
+	DECLARE_NETWORKCLASS();
 	DECLARE_PREDICTABLE();
 
 	void	Precache( void );
@@ -282,10 +282,10 @@ public:
 
 	CBaseEntity *GetMissile( void ) { return m_hMissile; }
 
-#ifndef CLIENT_DLL
+
 	DECLARE_ACTTABLE();
-#endif
-	
+
+
 protected:
 
 	CNetworkVar( bool, m_bInitialStateUpdate );
@@ -300,7 +300,7 @@ protected:
 #endif
 
 private:
-	
+
 	CWeaponRPG( const CWeaponRPG & );
 };
 

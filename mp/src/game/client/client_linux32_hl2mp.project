@@ -79,6 +79,7 @@
       <File Name="../../game/shared/hl2/hl_gamemovement.cpp"/>
       <File Name="../../game/shared/hl2/survival_gamerules.cpp"/>
       <File Name="../../game/shared/hl2mp/hl2mp_gamerules.cpp"/>
+      <File Name="../../game/shared/hl2mp/hl2mp_playeranimstate.cpp"/>
       <File Name="../../game/shared/hl2mp/hl2mp_player_shared.cpp"/>
       <File Name="../../game/shared/hl2mp/hl2mp_weapon_parse.cpp"/>
       <File Name="../../game/shared/hl2mp/weapon_357.cpp"/>
@@ -102,6 +103,7 @@
       <File Name="../../game/shared/mapentities_shared.cpp"/>
       <File Name="../../game/shared/movevars_shared.cpp"/>
       <File Name="../../game/shared/mp_shareddefs.cpp"/>
+      <File Name="../../game/shared/Multiplayer/multiplayer_animstate.cpp"/>
       <File Name="../../game/shared/multiplay_gamerules.cpp"/>
       <File Name="../../game/shared/obstacle_pushaway.cpp"/>
       <File Name="../../game/shared/particlesystemquery.cpp"/>
@@ -625,6 +627,7 @@
       <File Name="../../game/shared/hl2/hl_gamemovement.h"/>
       <File Name="../../game/shared/hl2/hl_movedata.h"/>
       <File Name="../../game/shared/hl2mp/hl2mp_gamerules.h"/>
+      <File Name="../../game/shared/hl2mp/hl2mp_playeranimstate.h"/>
       <File Name="../../game/shared/hl2mp/hl2mp_player_shared.h"/>
       <File Name="../../game/shared/hl2mp/hl2mp_weapon_parse.h"/>
       <File Name="../../game/shared/hl2mp/weapon_ar2.h"/>
@@ -649,6 +652,7 @@
       <File Name="../../game/shared/mapentities_shared.h"/>
       <File Name="../../game/shared/movevars_shared.h"/>
       <File Name="../../game/shared/mp_shareddefs.h"/>
+      <File Name="../../game/shared/Multiplayer/multiplayer_animstate.h"/>
       <File Name="../../game/shared/multiplay_gamerules.h"/>
       <File Name="../../game/shared/npcevent.h"/>
       <File Name="../../game/shared/obstacle_pushaway.h"/>

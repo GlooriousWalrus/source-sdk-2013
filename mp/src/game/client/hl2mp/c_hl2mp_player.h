@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //
@@ -9,7 +9,7 @@
 #define HL2MP_PLAYER_H
 #pragma once
 
-class C_HL2MP_Player;
+#include "hl2mp_playeranimstate.h"
 #include "c_basehlplayer.h"
 #include "hl2mp_player_shared.h"
 #include "beamdraw.h"
@@ -33,11 +33,10 @@ public:
 	void ClientThink( void );
 
 	static C_HL2MP_Player* GetLocalHL2MPPlayer();
-	
+
 	virtual int DrawModel( int flags );
 	virtual void AddEntity( void );
 
-	QAngle GetAnimEyeAngles( void ) { return m_angEyeAngles; }
 	Vector GetAttackSpread( CBaseCombatWeapon *pWeapon, CBaseEntity *pTarget = NULL );
 
 
@@ -65,7 +64,7 @@ public:
 	virtual void CalcView( Vector &eyeOrigin, QAngle &eyeAngles, float &zNear, float &zFar, float &fov );
 	virtual const QAngle& EyeAngles( void );
 
-	
+
 	bool	CanSprint( void );
 	void	StartSprinting( void );
 	void	StopSprinting( void );
@@ -84,13 +83,15 @@ public:
 	void StopWalking( void );
 	bool IsWalking( void ) { return m_fIsWalking; }
 
-	virtual void PostThink( void );
+	virtual void UpdateClientSideAnimation();
+	void DoAnimationEvent( PlayerAnimEvent_t event, int nData = 0 );
+	virtual void CalculateIKLocks( float currentTime );
 
 private:
-	
+
 	C_HL2MP_Player( const C_HL2MP_Player & );
 
-	CPlayerAnimState m_PlayerAnimState;
+	CHL2MPPlayerAnimState *m_PlayerAnimState;
 
 	QAngle	m_angEyeAngles;
 
@@ -124,7 +125,7 @@ private:
 	void ReleaseFlashlight( void );
 	Beam_t	*m_pFlashlightBeam;
 
-	CNetworkVar( HL2MPPlayerState, m_iPlayerState );	
+	CNetworkVar( HL2MPPlayerState, m_iPlayerState );
 
 	bool m_fIsWalking;
 };
@@ -143,7 +144,7 @@ class C_HL2MPRagdoll : public C_BaseAnimatingOverlay
 public:
 	DECLARE_CLASS( C_HL2MPRagdoll, C_BaseAnimatingOverlay );
 	DECLARE_CLIENTCLASS();
-	
+
 	C_HL2MPRagdoll();
 	~C_HL2MPRagdoll();
 
@@ -155,9 +156,9 @@ public:
 	void ImpactTrace( trace_t *pTrace, int iDamageType, const char *pCustomImpactName );
 	void UpdateOnRemove( void );
 	virtual void SetupWeights( const matrix3x4_t *pBoneToWorld, int nFlexWeightCount, float *pFlexWeights, float *pFlexDelayedWeights );
-	
+
 private:
-	
+
 	C_HL2MPRagdoll( const C_HL2MPRagdoll & ) {}
 
 	void Interp_Copy( C_BaseAnimatingOverlay *pDestinationEntity );

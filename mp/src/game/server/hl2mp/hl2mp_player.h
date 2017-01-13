@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //
@@ -16,6 +16,7 @@ class CHL2MP_Player;
 #include "hl2_player.h"
 #include "simtimer.h"
 #include "soundenvelope.h"
+#include "hl2mp_playeranimstate.h"
 #include "hl2mp_player_shared.h"
 #include "hl2mp_gamerules.h"
 #include "utldict.h"
@@ -42,7 +43,7 @@ public:
 
 	CHL2MP_Player();
 	~CHL2MP_Player( void );
-	
+
 	static CHL2MP_Player *CreatePlayer( const char *className, edict_t *ed )
 	{
 		CHL2MP_Player::s_PlayerEdict = ed;
@@ -51,13 +52,17 @@ public:
 
 	DECLARE_SERVERCLASS();
 	DECLARE_DATADESC();
+	DECLARE_PREDICTABLE();
+
+	// This passes the event to the client's and server's CHL2MPPlayerAnimState.
+	void DoAnimationEvent( PlayerAnimEvent_t event, int nData = 0 );
+	void SetupBones( matrix3x4_t *pBoneToWorld, int boneMask );
 
 	virtual void Precache( void );
 	virtual void Spawn( void );
 	virtual void PostThink( void );
 	virtual void PreThink( void );
 	virtual void PlayerDeathThink( void );
-	virtual void SetAnimation( PLAYER_ANIM playerAnim );
 	virtual bool HandleCommand_JoinTeam( int team );
 	virtual bool ClientCommand( const CCommand &args );
 	virtual void CreateViewModel( int viewmodelindex = 0 );
@@ -75,16 +80,15 @@ public:
 	virtual void UpdateOnRemove( void );
 	virtual void DeathSound( const CTakeDamageInfo &info );
 	virtual CBaseEntity* EntSelectSpawnPoint( void );
-		
+
 	int FlashlightIsOn( void );
 	void FlashlightTurnOn( void );
 	void FlashlightTurnOff( void );
 	void	PrecacheFootStepSounds( void );
 	bool	ValidatePlayerModel( const char *pModel );
 
-	QAngle GetAnimEyeAngles( void ) { return m_angEyeAngles.Get(); }
-
 	Vector GetAttackSpread( CBaseCombatWeapon *pWeapon, CBaseEntity *pTarget = NULL );
+	virtual Vector GetAutoaimVector( float flDelta );
 
 	void CheatImpulseCommands( int iImpulse );
 	void CreateRagdollEntity( void );
@@ -92,19 +96,20 @@ public:
 	void GiveDefaultItems( void );
 
 	void NoteWeaponFired( void );
+	void SetAnimation( PLAYER_ANIM playerAnim );
 
 	void ResetAnimation( void );
 	void SetPlayerModel( void );
 	void SetPlayerTeamModel( void );
 	Activity TranslateTeamActivity( Activity ActToTranslate );
-	
+
 	float GetNextModelChangeTime( void ) { return m_flNextModelChangeTime; }
 	float GetNextTeamChangeTime( void ) { return m_flNextTeamChangeTime; }
 	void  PickDefaultSpawnTeam( void );
 	void  SetupPlayerSoundsByModel( const char *pModelName );
 	const char *GetPlayerModelSoundPrefix( void );
 	int	  GetPlayerModelType( void ) { return m_iPlayerSoundType;	}
-	
+
 	void  DetonateTripmines( void );
 
 	void Reset();
@@ -133,15 +138,16 @@ public:
 	Vector m_vecTotalBulletForce;	//Accumulator for bullet force in a single frame
 
 	// Tracks our ragdoll entity.
-	CNetworkHandle( CBaseEntity, m_hRagdoll );	// networked entity handle 
+	CNetworkHandle( CBaseEntity, m_hRagdoll );	// networked entity handle
 
 	virtual bool	CanHearAndReadChatFrom( CBasePlayer *pPlayer );
 
-		
+
 private:
 
+	CHL2MPPlayerAnimState *m_PlayerAnimState;
+
 	CNetworkQAngle( m_angEyeAngles );
-	CPlayerAnimState   m_PlayerAnimState;
 
 	int m_iLastWeaponFireUsercmd;
 	int m_iModelType;
@@ -151,7 +157,7 @@ private:
 	float m_flNextModelChangeTime;
 	float m_flNextTeamChangeTime;
 
-	float m_flSlamProtectTime;	
+	float m_flSlamProtectTime;
 
 	HL2MPPlayerState m_iPlayerState;
 	CHL2MPPlayerStateInfo *m_pCurStateInfo;

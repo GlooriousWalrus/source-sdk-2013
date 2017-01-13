@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $Workfile:     $
 // $Date:         $
@@ -33,12 +33,10 @@ class CWeaponCrowbar : public CBaseHL2MPBludgeonWeapon
 public:
 	DECLARE_CLASS( CWeaponCrowbar, CBaseHL2MPBludgeonWeapon );
 
-	DECLARE_NETWORKCLASS(); 
+	DECLARE_NETWORKCLASS();
 	DECLARE_PREDICTABLE();
 
-#ifndef CLIENT_DLL
 	DECLARE_ACTTABLE();
-#endif
 
 	CWeaponCrowbar();
 
@@ -62,9 +60,8 @@ private:
     // Animation event handlers
 	void HandleAnimEventMeleeHit( animevent_t *pEvent, CBaseCombatCharacter *pOperator );
 #endif
-		
+
 };
 
 
 #endif // HL2MP_WEAPON_CROWBAR_H
-

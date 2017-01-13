@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================//
 
@@ -28,7 +28,7 @@ class CWeaponShotgun : public CBaseHL2MPCombatWeapon
 public:
 	DECLARE_CLASS( CWeaponShotgun, CBaseHL2MPCombatWeapon );
 
-	DECLARE_NETWORKCLASS(); 
+	DECLARE_NETWORKCLASS();
 	DECLARE_PREDICTABLE();
 
 private:
@@ -46,14 +46,14 @@ public:
 
 	virtual int				GetMinBurst() { return 1; }
 	virtual int				GetMaxBurst() { return 3; }
-	
+
 #ifndef CLIENT_DLL
     virtual float			GetMinRestTime();
     virtual float			GetMaxRestTime();
 #endif
-    
+
     virtual float			GetFireRate( void );
-	
+
 	bool StartReload( void );
 	bool Reload( void );
 	void FillClip( void );
@@ -68,15 +68,16 @@ public:
 	void DryFire( void );
 
 #ifndef CLIENT_DLL
-    
+
     int CapabilitiesGet( void ) { return bits_CAP_WEAPON_RANGE_ATTACK1; }
-    
+
     void FireNPCPrimaryAttack( CBaseCombatCharacter *pOperator, bool bUseWeaponAngles );
     void Operator_ForceNPCFire( CBaseCombatCharacter  *pOperator, bool bSecondary );
     void Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator );
-    
-    DECLARE_ACTTABLE();
+
 #endif
+
+	DECLARE_ACTTABLE();
 
 	CWeaponShotgun(void);
 
@@ -112,18 +113,22 @@ END_PREDICTION_DATA()
 LINK_ENTITY_TO_CLASS( weapon_shotgun, CWeaponShotgun );
 PRECACHE_WEAPON_REGISTER(weapon_shotgun);
 
-#ifndef CLIENT_DLL
-acttable_t	CWeaponShotgun::m_acttable[] = 
+acttable_t	CWeaponShotgun::m_acttable[] =
 {
-	{ ACT_HL2MP_IDLE,					ACT_HL2MP_IDLE_SHOTGUN,					false },
-	{ ACT_HL2MP_RUN,					ACT_HL2MP_RUN_SHOTGUN,					false },
-	{ ACT_HL2MP_IDLE_CROUCH,			ACT_HL2MP_IDLE_CROUCH_SHOTGUN,			false },
-	{ ACT_HL2MP_WALK_CROUCH,			ACT_HL2MP_WALK_CROUCH_SHOTGUN,			false },
-	{ ACT_HL2MP_GESTURE_RANGE_ATTACK,	ACT_HL2MP_GESTURE_RANGE_ATTACK_SHOTGUN,	false },
-	{ ACT_HL2MP_GESTURE_RELOAD,			ACT_HL2MP_GESTURE_RELOAD_SHOTGUN,		false },
-	{ ACT_HL2MP_JUMP,					ACT_HL2MP_JUMP_SHOTGUN,					false },
-	{ ACT_RANGE_ATTACK1,				ACT_RANGE_ATTACK_SHOTGUN,				false },
-    
+	{ ACT_MP_STAND_IDLE,				ACT_HL2MP_IDLE_SHOTGUN,					false },
+	{ ACT_MP_CROUCH_IDLE,				ACT_HL2MP_IDLE_CROUCH_SHOTGUN,			false },
+
+	{ ACT_MP_RUN,						ACT_HL2MP_RUN_SHOTGUN,					false },
+	{ ACT_MP_CROUCHWALK,				ACT_HL2MP_WALK_CROUCH_SHOTGUN,			false },
+
+	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,	ACT_HL2MP_GESTURE_RANGE_ATTACK_SHOTGUN,	false },
+	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,	ACT_HL2MP_GESTURE_RANGE_ATTACK_SHOTGUN,	false },
+
+	{ ACT_MP_RELOAD_STAND,				ACT_HL2MP_GESTURE_RELOAD_SHOTGUN,		false },
+	{ ACT_MP_RELOAD_CROUCH,				ACT_HL2MP_GESTURE_RELOAD_SHOTGUN,		false },
+
+	{ ACT_MP_JUMP,						ACT_HL2MP_JUMP_SHOTGUN,					false },
+
     { ACT_IDLE,						ACT_IDLE_SMG1,					true },	// FIXME: hook to shotgun unique
 	{ ACT_RELOAD,					ACT_RELOAD_SHOTGUN,					false },
 	{ ACT_WALK,						ACT_WALK_RIFLE,						true },
@@ -143,7 +148,7 @@ acttable_t	CWeaponShotgun::m_acttable[] =
 	{ ACT_RUN_AGITATED,				ACT_RUN_AIM_RIFLE,				false },//always aims
 
 // Readiness activities (aiming)
-	{ ACT_IDLE_AIM_RELAXED,			ACT_IDLE_SMG1_RELAXED,			false },//never aims	
+	{ ACT_IDLE_AIM_RELAXED,			ACT_IDLE_SMG1_RELAXED,			false },//never aims
 	{ ACT_IDLE_AIM_STIMULATED,		ACT_IDLE_AIM_RIFLE_STIMULATED,	false },
 	{ ACT_IDLE_AIM_AGITATED,		ACT_IDLE_ANGRY_SMG1,			false },//always aims
 
@@ -171,9 +176,10 @@ acttable_t	CWeaponShotgun::m_acttable[] =
 
 IMPLEMENT_ACTTABLE(CWeaponShotgun);
 
+#ifndef CLIENT_DLL
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pOperator - 
+// Purpose:
+// Input  : *pOperator -
 //-----------------------------------------------------------------------------
 void CWeaponShotgun::FireNPCPrimaryAttack( CBaseCombatCharacter *pOperator, bool bUseWeaponAngles )
 {
@@ -190,7 +196,7 @@ void CWeaponShotgun::FireNPCPrimaryAttack( CBaseCombatCharacter *pOperator, bool
 		GetAttachment( LookupAttachment( "muzzle" ), vecShootOrigin, angShootDir );
 		AngleVectors( angShootDir, &vecShootDir );
 	}
-	else 
+	else
 	{
 		vecShootOrigin = pOperator->Weapon_ShootPosition();
 		vecShootDir = npc->GetActualShootTrajectory( vecShootOrigin );
@@ -200,7 +206,7 @@ void CWeaponShotgun::FireNPCPrimaryAttack( CBaseCombatCharacter *pOperator, bool
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CWeaponShotgun::Operator_ForceNPCFire( CBaseCombatCharacter *pOperator, bool bSecondary )
 {
@@ -236,7 +242,7 @@ void CWeaponShotgun::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatC
 //			BaseCombatWeapon default rest time of 0.3 to 0.6 seconds. When
 //			NPC's fight from a stationary position, their animation events
 //			govern when they fire so the rate of fire is specified by the
-//			animation. When NPC's move-and-shoot, the rate of fire is 
+//			animation. When NPC's move-and-shoot, the rate of fire is
 //			specifically controlled by the shot regulator, so it's imporant
 //			that GetMinRestTime and GetMaxRestTime are implemented and provide
 //			reasonable defaults for the weapon. To address difficulty concerns,
@@ -249,7 +255,7 @@ float CWeaponShotgun::GetMinRestTime()
 	{
 		return 1.2f;
 	}
-	
+
 	return BaseClass::GetMinRestTime();
 }
 
@@ -295,8 +301,8 @@ bool CWeaponShotgun::StartReload( void )
 	if ( m_bNeedPump )
 		return false;
 
-	CBaseCombatCharacter *pOwner  = GetOwner();
-	
+	CHL2MP_Player *pOwner = ToHL2MPPlayer( GetOwner() );
+
 	if ( pOwner == NULL )
 		return false;
 
@@ -313,6 +319,8 @@ bool CWeaponShotgun::StartReload( void )
 		return false;
 
 	SendWeaponAnim( ACT_SHOTGUN_RELOAD_START );
+
+	pOwner->DoAnimationEvent( PLAYERANIMEVENT_RELOAD );
 
 	// Make shotgun shell visible
 	SetBodygroup(1,0);
@@ -338,7 +346,7 @@ bool CWeaponShotgun::Reload( void )
 	}
 
 	CBaseCombatCharacter *pOwner  = GetOwner();
-	
+
 	if ( pOwner == NULL )
 		return false;
 
@@ -375,7 +383,7 @@ void CWeaponShotgun::FinishReload( void )
 	SetBodygroup(1,1);
 
 	CBaseCombatCharacter *pOwner  = GetOwner();
-	
+
 	if ( pOwner == NULL )
 		return;
 
@@ -396,7 +404,7 @@ void CWeaponShotgun::FinishReload( void )
 void CWeaponShotgun::FillClip( void )
 {
 	CBaseCombatCharacter *pOwner  = GetOwner();
-	
+
 	if ( pOwner == NULL )
 		return;
 
@@ -422,7 +430,7 @@ void CWeaponShotgun::Pump( void )
 
 	if ( pOwner == NULL )
 		return;
-	
+
 	m_bNeedPump = false;
 
 	if ( m_bDelayedReload )
@@ -430,7 +438,7 @@ void CWeaponShotgun::Pump( void )
 		m_bDelayedReload = false;
 		StartReload();
 	}
-	
+
 	WeaponSound( SPECIAL1 );
 
 	// Finish reload animation
@@ -441,7 +449,7 @@ void CWeaponShotgun::Pump( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //
 //
 //-----------------------------------------------------------------------------
@@ -449,19 +457,19 @@ void CWeaponShotgun::DryFire( void )
 {
 	WeaponSound(EMPTY);
 	SendWeaponAnim( ACT_VM_DRYFIRE );
-	
+
 	m_flNextPrimaryAttack = gpGlobals->curtime + SequenceDuration();
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //
 //
 //-----------------------------------------------------------------------------
 void CWeaponShotgun::PrimaryAttack( void )
 {
 	// Only the player fires this way so we can cast
-	CBasePlayer *pPlayer = ToBasePlayer( GetOwner() );
+	CHL2MP_Player *pPlayer = ToHL2MPPlayer( GetOwner() );
 
 	if (!pPlayer)
 	{
@@ -480,17 +488,17 @@ void CWeaponShotgun::PrimaryAttack( void )
 	m_iClip1 -= 1;
 
 	// player "shoot" animation
-	pPlayer->SetAnimation( PLAYER_ATTACK1 );
+	pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
 
 	Vector	vecSrc		= pPlayer->Weapon_ShootPosition( );
-	Vector	vecAiming	= pPlayer->GetAutoaimVector( AUTOAIM_10DEGREES );	
+	Vector	vecAiming	= pPlayer->GetAutoaimVector( AUTOAIM_10DEGREES );
 
 	FireBulletsInfo_t info( 7, vecSrc, vecAiming, GetBulletSpread(), MAX_TRACE_LENGTH, m_iPrimaryAmmoType );
 	info.m_pAttacker = pPlayer;
 
 	// Fire the bullets, and force the first shot to be perfectly accuracy
 	pPlayer->FireBullets( info );
-	
+
 	QAngle punch;
 	punch.Init( SharedRandomFloat( "shotgunpax", -2, -1 ), SharedRandomFloat( "shotgunpay", -2, 2 ), 0 );
 	pPlayer->ViewPunch( punch );
@@ -498,21 +506,21 @@ void CWeaponShotgun::PrimaryAttack( void )
 	if (!m_iClip1 && pPlayer->GetAmmoCount(m_iPrimaryAmmoType) <= 0)
 	{
 		// HEV suit - indicate out of ammo condition
-		pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0); 
+		pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 	}
 
 	m_bNeedPump = true;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //
 //
 //-----------------------------------------------------------------------------
 void CWeaponShotgun::SecondaryAttack( void )
 {
 	// Only the player fires this way so we can cast
-	CBasePlayer *pPlayer = ToBasePlayer( GetOwner() );
+	CHL2MP_Player *pPlayer = ToHL2MPPlayer( GetOwner() );
 
 	if (!pPlayer)
 	{
@@ -532,10 +540,10 @@ void CWeaponShotgun::SecondaryAttack( void )
 	m_iClip1 -= 2;	// Shotgun uses same clip for primary and secondary attacks
 
 	// player "shoot" animation
-	pPlayer->SetAnimation( PLAYER_ATTACK1 );
+	pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
 
 	Vector vecSrc	 = pPlayer->Weapon_ShootPosition();
-	Vector vecAiming = pPlayer->GetAutoaimVector( AUTOAIM_10DEGREES );	
+	Vector vecAiming = pPlayer->GetAutoaimVector( AUTOAIM_10DEGREES );
 
 	FireBulletsInfo_t info( 12, vecSrc, vecAiming, GetBulletSpread(), MAX_TRACE_LENGTH, m_iPrimaryAmmoType );
 	info.m_pAttacker = pPlayer;
@@ -554,7 +562,7 @@ void CWeaponShotgun::SecondaryAttack( void )
 	if (!m_iClip1 && pPlayer->GetAmmoCount(m_iPrimaryAmmoType) <= 0)
 	{
 		// HEV suit - indicate out of ammo condition
-		pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0); 
+		pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 	}
 
 	m_bNeedPump = true;
@@ -615,7 +623,7 @@ void CWeaponShotgun::ItemPostFrame( void )
 		}
 	}
 	else
-	{			
+	{
 		// Make shotgun shell invisible
 		SetBodygroup(1,1);
 	}
@@ -625,15 +633,15 @@ void CWeaponShotgun::ItemPostFrame( void )
 		Pump();
 		return;
 	}
-	
+
 	// Shotgun uses same timing and ammo for secondary attack
 	if ((m_bDelayedFire2 || pOwner->m_nButtons & IN_ATTACK2)&&(m_flNextPrimaryAttack <= gpGlobals->curtime))
 	{
 		m_bDelayedFire2 = false;
-		
+
 		if ( (m_iClip1 <= 1 && UsesClipsForAmmo1()))
 		{
-			// If only one shell is left, do a single shot instead	
+			// If only one shell is left, do a single shot instead
 			if ( m_iClip1 == 1 )
 			{
 				PrimaryAttack();
@@ -698,17 +706,17 @@ void CWeaponShotgun::ItemPostFrame( void )
 		}
 	}
 
-	if ( pOwner->m_nButtons & IN_RELOAD && UsesClipsForAmmo1() && !m_bInReload ) 
+	if ( pOwner->m_nButtons & IN_RELOAD && UsesClipsForAmmo1() && !m_bInReload )
 	{
 		// reload when reload is pressed, or if no buttons are down and weapon is empty.
 		StartReload();
 	}
-	else 
+	else
 	{
 		// no fire buttons down
 		m_bFireOnEmpty = false;
 
-		if ( !HasAnyAmmo() && m_flNextPrimaryAttack < gpGlobals->curtime ) 
+		if ( !HasAnyAmmo() && m_flNextPrimaryAttack < gpGlobals->curtime )
 		{
 			// weapon isn't useable, switch.
 			if ( !(GetWeaponFlags() & ITEM_FLAG_NOAUTOSWITCHEMPTY) && pOwner->SwitchToNextBestWeapon( this ) )
@@ -756,7 +764,7 @@ CWeaponShotgun::CWeaponShotgun( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CWeaponShotgun::ItemHolsterFrame( void )
 {
@@ -773,7 +781,7 @@ void CWeaponShotgun::ItemHolsterFrame( void )
 	{
 		// Reset the timer
 		m_flHolsterTime = gpGlobals->curtime;
-	
+
 		if ( GetOwner() == NULL )
 			return;
 
@@ -782,14 +790,14 @@ void CWeaponShotgun::ItemHolsterFrame( void )
 
 		// Just load the clip with no animations
 		int ammoFill = MIN( (GetMaxClip1() - m_iClip1), GetOwner()->GetAmmoCount( GetPrimaryAmmoType() ) );
-		
+
 		GetOwner()->RemoveAmmo( ammoFill, GetPrimaryAmmoType() );
 		m_iClip1 += ammoFill;
 	}
 }
 
 //==================================================
-// Purpose: 
+// Purpose:
 //==================================================
 /*
 void CWeaponShotgun::WeaponIdle( void )

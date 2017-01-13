@@ -1768,7 +1768,7 @@ void CNPC_Citizen::RunTask( const Task_t *pTask )
 					}
 
 					Vector vecEnemyPos = GetEnemy()->BodyTarget(GetAbsOrigin(), false);
-					CBasePlayer *pPlayer = AI_GetSinglePlayer();
+					CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
 					if ( pPlayer && ( ( vecEnemyPos - pPlayer->GetAbsOrigin() ).LengthSqr() < RPG_SAFE_DISTANCE * RPG_SAFE_DISTANCE ) )
 					{
 						m_bRPGAvoidPlayer = true;
@@ -2294,7 +2294,7 @@ int CNPC_Citizen::OnTakeDamage_Alive( const CTakeDamageInfo &info )
 
 	if ( ( info.GetAttacker() -> GetFlags() & FL_CLIENT ) )
 	{
-		AddClassRelationship( CLASS_PLAYER, D_HT, 0 ); 
+		AddClassRelationship( CLASS_PLAYER, D_HT, 0 );
 	}
 
 	return BaseClass::OnTakeDamage_Alive( newInfo );

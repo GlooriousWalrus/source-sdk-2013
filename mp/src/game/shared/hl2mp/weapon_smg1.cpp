@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 //=============================================================================//
 
@@ -36,10 +36,10 @@ public:
 
 	CWeaponSMG1();
 
-	DECLARE_NETWORKCLASS(); 
+	DECLARE_NETWORKCLASS();
 	DECLARE_PREDICTABLE();
 
-	
+
 	void	Precache( void );
 	void	AddViewKick( void );
 	void	SecondaryAttack( void );
@@ -77,15 +77,15 @@ public:
 
 	const WeaponProficiencyInfo_t *GetProficiencyValues();
 
-#ifndef CLIENT_DLL
+
 	DECLARE_ACTTABLE();
-#endif
+
 
 protected:
 
 	Vector	m_vecTossVelocity;
 	float	m_flNextGrenadeCheck;
-	
+
 private:
 	CWeaponSMG1( const CWeaponSMG1 & );
 };
@@ -101,24 +101,30 @@ END_PREDICTION_DATA()
 LINK_ENTITY_TO_CLASS( weapon_smg1, CWeaponSMG1 );
 PRECACHE_WEAPON_REGISTER(weapon_smg1);
 
-#ifndef CLIENT_DLL
-acttable_t	CWeaponSMG1::m_acttable[] = 
+
+acttable_t	CWeaponSMG1::m_acttable[] =
 {
-	{ ACT_HL2MP_IDLE,					ACT_HL2MP_IDLE_SMG1,					false },
-	{ ACT_HL2MP_RUN,					ACT_HL2MP_RUN_SMG1,						false },
-	{ ACT_HL2MP_IDLE_CROUCH,			ACT_HL2MP_IDLE_CROUCH_SMG1,				false },
-	{ ACT_HL2MP_WALK_CROUCH,			ACT_HL2MP_WALK_CROUCH_SMG1,				false },
-	{ ACT_HL2MP_GESTURE_RANGE_ATTACK,	ACT_HL2MP_GESTURE_RANGE_ATTACK_SMG1,	false },
-	{ ACT_HL2MP_GESTURE_RELOAD,			ACT_HL2MP_GESTURE_RELOAD_SMG1,			false },
-	{ ACT_HL2MP_JUMP,					ACT_HL2MP_JUMP_SMG1,					false },
-	{ ACT_RANGE_ATTACK1,				ACT_RANGE_ATTACK_SMG1,					false },
+	{ ACT_MP_STAND_IDLE,				ACT_HL2MP_IDLE_SMG1,					false },
+	{ ACT_MP_CROUCH_IDLE,				ACT_HL2MP_IDLE_CROUCH_SMG1,				false },
+
+	{ ACT_MP_RUN,						ACT_HL2MP_RUN_SMG1,						false },
+	{ ACT_MP_CROUCHWALK,				ACT_HL2MP_WALK_CROUCH_SMG1,				false },
+
+	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,	ACT_HL2MP_GESTURE_RANGE_ATTACK_SMG1,	false },
+	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,	ACT_HL2MP_GESTURE_RANGE_ATTACK_SMG1,	false },
+
+	{ ACT_MP_RELOAD_STAND,				ACT_HL2MP_GESTURE_RELOAD_SMG1,			false },
+	{ ACT_MP_RELOAD_CROUCH,				ACT_HL2MP_GESTURE_RELOAD_SMG1,			false },
+
+{ ACT_MP_JUMP, ACT_HL2MP_JUMP_SMG1, false },
+
 	{ ACT_RELOAD,					ACT_RELOAD_SMG1,				true },
 	{ ACT_IDLE,						ACT_IDLE_SMG1,					true },
 	{ ACT_IDLE_ANGRY,				ACT_IDLE_ANGRY_SMG1,			true },
 
 	{ ACT_WALK,						ACT_WALK_RIFLE,					true },
 	{ ACT_WALK_AIM,					ACT_WALK_AIM_RIFLE,				true  },
-	
+
 // Readiness activities (not aiming)
 	{ ACT_IDLE_RELAXED,				ACT_IDLE_SMG1_RELAXED,			false },//never aims
 	{ ACT_IDLE_STIMULATED,			ACT_IDLE_SMG1_STIMULATED,		false },
@@ -133,7 +139,7 @@ acttable_t	CWeaponSMG1::m_acttable[] =
 	{ ACT_RUN_AGITATED,				ACT_RUN_AIM_RIFLE,				false },//always aims
 
 // Readiness activities (aiming)
-	{ ACT_IDLE_AIM_RELAXED,			ACT_IDLE_SMG1_RELAXED,			false },//never aims	
+	{ ACT_IDLE_AIM_RELAXED,			ACT_IDLE_SMG1_RELAXED,			false },//never aims
 	{ ACT_IDLE_AIM_STIMULATED,		ACT_IDLE_AIM_RIFLE_STIMULATED,	false },
 	{ ACT_IDLE_AIM_AGITATED,		ACT_IDLE_ANGRY_SMG1,			false },//always aims
 
@@ -162,17 +168,17 @@ acttable_t	CWeaponSMG1::m_acttable[] =
 };
 
 IMPLEMENT_ACTTABLE(CWeaponSMG1);
-#endif
+
 
 //=========================================================
 CWeaponSMG1::CWeaponSMG1( )
 {
-	m_fMinRange1		= 0;// No minimum range. 
+	m_fMinRange1		= 0;// No minimum range.
 	m_fMaxRange1		= 1400;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CWeaponSMG1::Precache( void )
 {
@@ -200,7 +206,7 @@ void CWeaponSMG1::Equip( CBaseCombatCharacter *pOwner )
 
 #ifndef CLIENT_DLL
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CWeaponSMG1::FireNPCPrimaryAttack( CBaseCombatCharacter *pOperator, Vector &vecShootOrigin, Vector &vecShootDir )
 {
@@ -216,7 +222,7 @@ void CWeaponSMG1::FireNPCPrimaryAttack( CBaseCombatCharacter *pOperator, Vector 
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CWeaponSMG1::Operator_ForceNPCFire( CBaseCombatCharacter *pOperator, bool bSecondary )
 {
@@ -231,7 +237,7 @@ void CWeaponSMG1::Operator_ForceNPCFire( CBaseCombatCharacter *pOperator, bool b
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CWeaponSMG1::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatCharacter *pOperator )
 {
@@ -270,7 +276,7 @@ void CWeaponSMG1::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatChar
 		CGrenadeAR2 *pGrenade = (CGrenadeAR2*)Create( "grenade_ar2", vecShootOrigin, vec3_angle, npc );
 		pGrenade->SetAbsVelocity( vecThrow );
 		pGrenade->SetLocalAngularVelocity( QAngle( 0, 400, 0 ) );
-		pGrenade->SetMoveType( MOVETYPE_FLYGRAVITY ); 
+		pGrenade->SetMoveType( MOVETYPE_FLYGRAVITY );
 		pGrenade->m_hOwner			= npc;
 		pGrenade->m_pMyWeaponAR2	= this;
 		pGrenade->SetDamage(sk_npc_dmg_ar2_grenade.GetFloat());
@@ -292,9 +298,9 @@ void CWeaponSMG1::Operator_HandleAnimEvent( animevent_t *pEvent, CBaseCombatChar
 #define	COMBINE_MIN_GRENADE_CLEAR_DIST 256
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : flDot - 
-//			flDist - 
+// Purpose:
+// Input  : flDot -
+//			flDist -
 // Output : int
 //-----------------------------------------------------------------------------
 int CWeaponSMG1::WeaponRangeAttack2Condition( float flDot, float flDist )
@@ -325,12 +331,12 @@ int CWeaponSMG1::WeaponRangeAttack2Condition( float flDot, float flDist )
 	Vector vecEnemyLKP = npcOwner->GetEnemyLKP();
 	if ( !( pEnemy->GetFlags() & FL_ONGROUND ) && pEnemy->GetWaterLevel() == 0 && vecEnemyLKP.z > (GetAbsOrigin().z + WorldAlignMaxs().z) )
 	{
-		//!!!BUGBUG - we should make this check movetype and make sure it isn't FLY? Players who jump a lot are unlikely to 
+		//!!!BUGBUG - we should make this check movetype and make sure it isn't FLY? Players who jump a lot are unlikely to
 		// be grenaded.
 		// don't throw grenades at anything that isn't on the ground!
 		return COND_NONE;
 	}
-	
+
 	// --------------------------------------
 	//  Get target vector
 	// --------------------------------------
@@ -399,7 +405,7 @@ int CWeaponSMG1::WeaponRangeAttack2Condition( float flDot, float flDist )
 #endif
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 // Output : Activity
 //-----------------------------------------------------------------------------
 Activity CWeaponSMG1::GetPrimaryAttackActivity( void )
@@ -409,7 +415,7 @@ Activity CWeaponSMG1::GetPrimaryAttackActivity( void )
 
 	if ( m_nShotsFired < 3 )
 		return ACT_VM_RECOIL1;
-	
+
 	if ( m_nShotsFired < 4 )
 		return ACT_VM_RECOIL2;
 
@@ -432,20 +438,23 @@ bool CWeaponSMG1::Reload( void )
 		m_flNextSecondaryAttack = GetOwner()->m_flNextAttack = fCacheTime;
 
 		WeaponSound( RELOAD );
+
+		ToHL2MPPlayer(GetOwner())->DoAnimationEvent( PLAYERANIMEVENT_RELOAD );
+
 	}
 
 	return fRet;
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CWeaponSMG1::AddViewKick( void )
 {
 	#define	EASY_DAMPEN			0.5f
 	#define	MAX_VERTICAL_KICK	1.0f	//Degrees
 	#define	SLIDE_LIMIT			2.0f	//Seconds
-	
+
 	//Get the view kick
 	CBasePlayer *pPlayer = ToBasePlayer( GetOwner() );
 
@@ -456,13 +465,13 @@ void CWeaponSMG1::AddViewKick( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CWeaponSMG1::SecondaryAttack( void )
 {
 	// Only the player fires this way so we can cast
-	CBasePlayer *pPlayer = ToBasePlayer( GetOwner() );
-	
+	CHL2MP_Player *pPlayer = ToHL2MPPlayer( GetOwner() );
+
 	if ( pPlayer == NULL )
 		return;
 
@@ -486,14 +495,14 @@ void CWeaponSMG1::SecondaryAttack( void )
 	// Don't autoaim on grenade tosses
 	AngleVectors( pPlayer->EyeAngles() + pPlayer->GetPunchAngle(), &vecThrow );
 	VectorScale( vecThrow, 1000.0f, vecThrow );
-	
+
 #ifndef CLIENT_DLL
 	//Create the grenade
 	CGrenadeAR2 *pGrenade = (CGrenadeAR2*)Create( "grenade_ar2", vecSrc, vec3_angle, pPlayer );
 	pGrenade->SetAbsVelocity( vecThrow );
 
 	pGrenade->SetLocalAngularVelocity( RandomAngle( -400, 400 ) );
-	pGrenade->SetMoveType( MOVETYPE_FLYGRAVITY, MOVECOLLIDE_FLY_BOUNCE ); 
+	pGrenade->SetMoveType( MOVETYPE_FLYGRAVITY, MOVECOLLIDE_FLY_BOUNCE );
 	pGrenade->SetThrower( GetOwner() );
 	pGrenade->SetDamage( SMG1_GRENADE_DAMAGE );
 	pGrenade->SetDamageRadius( SMG1_GRENADE_RADIUS );
@@ -501,13 +510,13 @@ void CWeaponSMG1::SecondaryAttack( void )
 	CSoundEnt::InsertSound( SOUND_COMBAT, GetAbsOrigin(), 1000, 0.2, GetOwner(), SOUNDENT_CHANNEL_WEAPON );
 
 	// Register a muzzleflash for the AI.
-	pPlayer->SetMuzzleFlashTime( gpGlobals->curtime + 0.5 );	
+	pPlayer->SetMuzzleFlashTime( gpGlobals->curtime + 0.5 );
 #endif
 
 	SendWeaponAnim( ACT_VM_SECONDARYATTACK );
-	
+
 	// player "shoot" animation
-	pPlayer->SetAnimation( PLAYER_ATTACK1 );
+	pPlayer->DoAnimationEvent( PLAYERANIMEVENT_ATTACK_PRIMARY );
 
 	// Decrease ammo
 	pPlayer->RemoveAmmo( 1, m_iSecondaryAmmoType );
