@@ -153,6 +153,8 @@ acttable_t CWeaponPistol::m_acttable[] =
 
 		{ ACT_MP_JUMP,						ACT_HL2MP_JUMP_PISTOL,					false },
 
+		{ ACT_RANGE_ATTACK1,				ACT_RANGE_ATTACK_PISTOL,				false },
+
     { ACT_IDLE,						    ACT_IDLE_PISTOL,				        true  },
     { ACT_IDLE_ANGRY,				    ACT_IDLE_ANGRY_PISTOL,			true },
     { ACT_RANGE_ATTACK1,			    ACT_RANGE_ATTACK_PISTOL,		true },
