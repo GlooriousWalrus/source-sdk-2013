@@ -1438,31 +1438,28 @@ END_PREDICTION_DATA()
 
 acttable_t	CWeaponRPG::m_acttable[] =
 {
+	//mp player animations
 	{ ACT_MP_STAND_IDLE,				ACT_HL2MP_IDLE_RPG,					false },
 	{ ACT_MP_CROUCH_IDLE,				ACT_HL2MP_IDLE_CROUCH_RPG,			false },
-
 	{ ACT_MP_RUN,						ACT_HL2MP_RUN_RPG,					false },
 	{ ACT_MP_CROUCHWALK,				ACT_HL2MP_WALK_CROUCH_RPG,			false },
-
 	{ ACT_MP_ATTACK_STAND_PRIMARYFIRE,	ACT_HL2MP_GESTURE_RANGE_ATTACK_RPG,	false },
 	{ ACT_MP_ATTACK_CROUCH_PRIMARYFIRE,	ACT_HL2MP_GESTURE_RANGE_ATTACK_RPG,	false },
-
 	{ ACT_MP_RELOAD_STAND,				ACT_HL2MP_GESTURE_RELOAD_RPG,		false },
 	{ ACT_MP_RELOAD_CROUCH,				ACT_HL2MP_GESTURE_RELOAD_RPG,		false },
-
 	{ ACT_MP_JUMP, ACT_HL2MP_JUMP_RPG, false },
 
-    { ACT_IDLE_RELAXED,				ACT_IDLE_RPG_RELAXED,			true },
-    { ACT_IDLE_STIMULATED,			ACT_IDLE_ANGRY_RPG,				true },
-    { ACT_IDLE_AGITATED,			ACT_IDLE_ANGRY_RPG,				true },
-
-    { ACT_IDLE,						ACT_IDLE_RPG,					true },
-    { ACT_IDLE_ANGRY,				ACT_IDLE_ANGRY_RPG,				true },
-    { ACT_WALK,						ACT_WALK_RPG,					true },
-    { ACT_WALK_CROUCH,				ACT_WALK_CROUCH_RPG,			true },
-    { ACT_RUN,						ACT_RUN_RPG,					true },
-    { ACT_RUN_CROUCH,				ACT_RUN_CROUCH_RPG,				true },
-    { ACT_COVER_LOW,				ACT_COVER_LOW_RPG,				true },
+	//npc animations
+  { ACT_IDLE_RELAXED,				ACT_IDLE_RPG_RELAXED,			true },
+  { ACT_IDLE_STIMULATED,			ACT_IDLE_ANGRY_RPG,				true },
+  { ACT_IDLE_AGITATED,			ACT_IDLE_ANGRY_RPG,				true },
+  { ACT_IDLE,						ACT_IDLE_RPG,					true },
+  { ACT_IDLE_ANGRY,				ACT_IDLE_ANGRY_RPG,				true },
+  { ACT_WALK,						ACT_WALK_RPG,					true },
+  { ACT_WALK_CROUCH,				ACT_WALK_CROUCH_RPG,			true },
+  { ACT_RUN,						ACT_RUN_RPG,					true },
+  { ACT_RUN_CROUCH,				ACT_RUN_CROUCH_RPG,				true },
+  { ACT_COVER_LOW,				ACT_COVER_LOW_RPG,				true },
 };
 
 IMPLEMENT_ACTTABLE(CWeaponRPG);
@@ -1477,7 +1474,7 @@ CWeaponRPG::CWeaponRPG()
 	m_bInitialStateUpdate= false;
 	m_bHideGuiding = false;
 	m_bGuiding = false;
-    m_hMissile = NULL;
+  m_hMissile = NULL;
 
 	m_fMinRange1 = m_fMinRange2 = 40*12;
 	m_fMaxRange1 = m_fMaxRange2 = 500*12;
@@ -1651,12 +1648,12 @@ void CWeaponRPG::PrimaryAttack( void )
 		return;
 
 	// Can't have an active missile out
-	if ( m_hMissile != NULL )
-		return;
+	//if ( m_hMissile != NULL )
+	//	return;
 
 	// Can't be reloading
-	if ( GetActivity() == ACT_VM_RELOAD )
-		return;
+	//if ( GetActivity() == ACT_VM_RELOAD )
+	//	return;
 
 	Vector vecOrigin;
 	Vector vecForward;
@@ -2580,7 +2577,7 @@ void CLaserDot::MakeInvisible( void )
 //-----------------------------------------------------------------------------
 int CLaserDot::DrawModel( int flags )
 {
-	color32 color={255,255,255,255};
+	color32 color={255,255,255,128};
 	Vector	vecAttachment, vecDir;
 	QAngle	angles;
 

@@ -233,7 +233,7 @@ void CHL2MPPlayerAnimState::DoAnimationEvent( PlayerAnimEvent_t event, int nData
 			if ( GetBasePlayer()->GetFlags() & FL_DUCKING )
 				RestartGesture( GESTURE_SLOT_ATTACK_AND_RELOAD, ACT_MP_RELOAD_CROUCH );
 			else
-				RestartGesture( GESTURE_SLOT_ATTACK_AND_RELOAD, ACT_MP_RELOAD_STAND );
+				RestartGesture( GESTURE_SLOT_ATTACK_AND_RELOAD, ACT_MP_RELOAD_STAND ); // ACT_MP_RELOAD_STAND
 			break;
 		}
 	case PLAYERANIMEVENT_RELOAD_LOOP:

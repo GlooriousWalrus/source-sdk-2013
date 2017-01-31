@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //
@@ -42,7 +42,7 @@ END_DATADESC()
 LINK_ENTITY_TO_CLASS( npc_satchel, CSatchelCharge );
 
 //=========================================================
-// Deactivate - do whatever it is we do to an orphaned 
+// Deactivate - do whatever it is we do to an orphaned
 // satchel when we don't want it in the world anymore.
 //=========================================================
 void CSatchelCharge::Deactivate( void )
@@ -61,7 +61,7 @@ void CSatchelCharge::Deactivate( void )
 void CSatchelCharge::Spawn( void )
 {
 	Precache( );
-	SetModel( "models/Weapons/w_slam.mdl" );
+	SetModel( "models/weapons/w_slam.mdl" );
 
 	VPhysicsInitNormal( SOLID_BBOX, GetSolidFlags() | FSOLID_TRIGGER, false );
 	SetMoveType( MOVETYPE_VPHYSICS );
@@ -118,7 +118,7 @@ void CSatchelCharge::CreateEffects( void )
 //-----------------------------------------------------------------------------
 void CSatchelCharge::InputExplode( inputdata_t &inputdata )
 {
-	ExplosionCreate( GetAbsOrigin() + Vector( 0, 0, 16 ), GetAbsAngles(), GetThrower(), GetDamage(), 200, 
+	ExplosionCreate( GetAbsOrigin() + Vector( 0, 0, 16 ), GetAbsAngles(), GetThrower(), GetDamage(), 200,
 		SF_ENVEXPLOSION_NOSPARKS | SF_ENVEXPLOSION_NODLIGHTS | SF_ENVEXPLOSION_NOSMOKE, 0.0f, this);
 
 	UTIL_Remove( this );
@@ -149,8 +149,8 @@ void CSatchelCharge::SatchelThink( void )
 			SetOwnerEntity( saveOwner );
 		}
 	}
-	
-	// Bounce movement code gets this think stuck occasionally so check if I've 
+
+	// Bounce movement code gets this think stuck occasionally so check if I've
 	// succeeded in moving, otherwise kill my motions.
 	else if ((GetAbsOrigin() - m_vLastPosition).LengthSqr()<1)
 	{
@@ -184,7 +184,7 @@ void CSatchelCharge::SatchelThink( void )
 
 void CSatchelCharge::Precache( void )
 {
-	PrecacheModel("models/Weapons/w_slam.mdl");
+	PrecacheModel("models/weapons/w_slam.mdl");
 	PrecacheModel(SLAM_SPRITE);
 }
 

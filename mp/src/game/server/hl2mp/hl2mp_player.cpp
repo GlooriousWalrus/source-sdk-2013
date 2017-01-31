@@ -108,29 +108,36 @@ END_DATADESC()
 
 const char *g_ppszRandomCitizenModels[] =
 {
-	"models/humans/group03/male_01.mdl",
-	"models/humans/group03/male_02.mdl",
-	"models/humans/group03/female_01.mdl",
-	"models/humans/group03/male_03.mdl",
-	"models/humans/group03/female_02.mdl",
-	"models/humans/group03/male_04.mdl",
-	"models/humans/group03/female_03.mdl",
-	"models/humans/group03/male_05.mdl",
-	"models/humans/group03/female_04.mdl",
-	"models/humans/group03/male_06.mdl",
-	"models/humans/group03/female_06.mdl",
-	"models/humans/group03/male_07.mdl",
-	"models/humans/group03/female_07.mdl",
-	"models/humans/group03/male_08.mdl",
-	"models/humans/group03/male_09.mdl",
+	"models/coopmod/humans/group03/male_05.mdl",
+	"models/coopmod/humans/group03/male_06_sdk.mdl",
+	"models/coopmod/humans/group03/l7h_rebel.mdl",
+
+	/*"models/coopmod/humans/group03/male_01.mdl",
+	"models/coopmod/humans/group03/male_02.mdl",
+	"models/coopmod/humans/group03/female_01.mdl",
+	"models/coopmod/humans/group03/male_03.mdl",
+	"models/coopmod/humans/group03/female_02.mdl",
+	"models/coopmod/humans/group03/male_04.mdl",
+	"models/coopmod/humans/group03/female_03.mdl",
+	"models/coopmod/humans/group03/male_05.mdl",
+	"models/coopmod/humans/group03/female_04.mdl",
+	"models/coopmod/humans/group03/male_06.mdl",
+	"models/coopmod/humans/group03/female_06.mdl",
+	"models/coopmod/humans/group03/male_07.mdl",
+	"models/coopmod/humans/group03/female_07.mdl",
+	"models/coopmod/humans/group03/male_08.mdl",
+	"models/coopmod/humans/group03/male_09.mdl",*/
 };
 
 const char *g_ppszRandomCombineModels[] =
 {
+	"models/coopmod/humans/group03/police_05.mdl",
+
+	/*
 	"models/combine_soldier.mdl",
 	"models/combine_soldier_prisonguard.mdl",
 	"models/combine_super_soldier.mdl",
-	"models/police.mdl",
+	"models/police.mdl",*/
 };
 
 
@@ -220,6 +227,7 @@ void CHL2MP_Player::GiveAllItems( void )
 	CBasePlayer::GiveAmmo( 255,	"Buckshot");
 	CBasePlayer::GiveAmmo( 32,	"357" );
 	CBasePlayer::GiveAmmo( 3,	"rpg_round");
+	CBasePlayer::GiveAmmo( 10, "XBowBolt");
 
 	CBasePlayer::GiveAmmo( 1,	"grenade" );
 	CBasePlayer::GiveAmmo( 2,	"slam" );
@@ -250,10 +258,10 @@ void CHL2MP_Player::GiveDefaultItems( void )
 	EquipSuit();
 
 	CBasePlayer::GiveAmmo( 255,	"Pistol");
-	CBasePlayer::GiveAmmo( 45,	"SMG1");
-	CBasePlayer::GiveAmmo( 1,	"grenade" );
-	CBasePlayer::GiveAmmo( 6,	"Buckshot");
-	CBasePlayer::GiveAmmo( 6,	"357" );
+	//CBasePlayer::GiveAmmo( 45,	"SMG1");
+	//CBasePlayer::GiveAmmo( 1,	"grenade" );
+	//CBasePlayer::GiveAmmo( 6,	"Buckshot");
+	//CBasePlayer::GiveAmmo( 6,	"357" );
 
 	if ( GetPlayerModelType() == PLAYER_SOUNDS_METROPOLICE || GetPlayerModelType() == PLAYER_SOUNDS_COMBINESOLDIER )
 	{
@@ -265,9 +273,6 @@ void CHL2MP_Player::GiveDefaultItems( void )
 	}
 
 	GiveNamedItem( "weapon_pistol" );
-	GiveNamedItem( "weapon_smg1" );
-	GiveNamedItem( "weapon_frag" );
-	GiveNamedItem( "weapon_physcannon" );
 
 	const char *szDefaultWeaponName = engine->GetClientConVarValue( engine->IndexOfEdict( edict() ), "cl_defaultweapon" );
 
@@ -298,7 +303,7 @@ void CHL2MP_Player::PickDefaultSpawnTeam( void )
 				{
 					char szReturnString[512];
 
-					Q_snprintf( szReturnString, sizeof (szReturnString ), "cl_playermodel models/combine_soldier.mdl\n" );
+					Q_snprintf( szReturnString, sizeof (szReturnString ), "cl_playermodel models/coopmod/combine_soldier.mdl\n" );
 					engine->ClientCommand ( edict(), szReturnString );
 				}
 
@@ -338,6 +343,19 @@ void CHL2MP_Player::PickDefaultSpawnTeam( void )
 //-----------------------------------------------------------------------------
 void CHL2MP_Player::Spawn(void)
 {
+
+	if ( m_bTransition )
+		{
+			if ( m_bTransitionTeleported )
+				g_pGameRules->GetPlayerSpawnSpot( this );
+
+			m_bTransition = false;
+			m_bTransitionTeleported = false;
+
+			return;
+		}
+
+
 	m_flNextModelChangeTime = 0.0f;
 	m_flNextTeamChangeTime = 0.0f;
 
@@ -446,7 +464,7 @@ void CHL2MP_Player::SetPlayerTeamModel( void )
 
 	if ( modelIndex == -1 || ValidatePlayerModel( szModelName ) == false )
 	{
-		szModelName = "models/Combine_Soldier.mdl";
+		szModelName = "models/coopmod/humans/group03/police_05.mdl";
 		m_iModelType = TEAM_COMBINE;
 
 		char szReturnString[512];
@@ -547,7 +565,7 @@ void CHL2MP_Player::SetPlayerModel( void )
 
 	if ( modelIndex == -1 )
 	{
-		szModelName = "models/Combine_Soldier.mdl";
+		szModelName = "models/coopmod/humans/group03/police_05.mdl";
 		m_iModelType = TEAM_COMBINE;
 
 		char szReturnString[512];
