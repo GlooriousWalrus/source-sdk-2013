@@ -554,6 +554,9 @@ public:
 	virtual void			ForceDropOfCarriedPhysObjects( CBaseEntity *pOnlyIfHoldindThis = NULL ) {}
 	virtual float			GetHeldObjectMass( IPhysicsObject *pHeldObject );
 
+	//SecobMod__MiscFixes
+//	virtual CBaseEntity		*GetHeldObject( void );
+
 	void					CheckSuitUpdate();
 	void					SetSuitUpdate(const char *name, int fgroup, int iNoRepeat);
 	virtual void			UpdateGeigerCounter( void );

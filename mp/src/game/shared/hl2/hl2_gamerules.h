@@ -37,7 +37,7 @@ public:
 	virtual bool			Damage_IsTimeBased( int iDmgType );
 	// TEMP:
 	virtual int				Damage_GetTimeBased( void );
-	
+
 	virtual bool			ShouldCollide( int collisionGroup0, int collisionGroup1 );
 	virtual bool			ShouldUseRobustRadiusDamage(CBaseEntity *pEntity);
 #ifndef CLIENT_DLL
@@ -75,7 +75,7 @@ private:
 	virtual void			PlayerThink( CBasePlayer *pPlayer );
 	virtual float			GetAmmoDamage( CBaseEntity *pAttacker, CBaseEntity *pVictim, int nAmmoType );
 
-	virtual bool			ShouldBurningPropsEmitLight();
+	//virtual bool			ShouldBurningPropsEmitLight();
 public:
 
 	bool AllowDamage( CBaseEntity *pVictim, const CTakeDamageInfo &info );
@@ -85,8 +85,8 @@ public:
 	void	NPC_DroppedHealth( void );
 	void	NPC_DroppedGrenade( void );
 	bool	MegaPhyscannonActive( void ) { return m_bMegaPhysgun;	}
-	
-	virtual bool IsAlyxInDarknessMode();
+
+	//virtual bool IsAlyxInDarknessMode();
 
 private:
 

@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -108,7 +108,7 @@ CClassMenu::~CClassMenu()
 }
 
 MouseOverPanelButton* CClassMenu::CreateNewMouseOverPanelButton(EditablePanel *panel)
-{ 
+{
 	return new MouseOverPanelButton(this, "MouseOverPanelButton", panel);
 }
 
@@ -129,7 +129,7 @@ Panel *CClassMenu::CreateControlByName(const char *controlName)
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CClassMenu::Reset()
 {
@@ -169,11 +169,11 @@ void CClassMenu::OnCommand( const char *command )
 		engine->ClientCmd( const_cast<char *>( command ) );
 
 #if !defined( CSTRIKE_DLL ) && !defined( TF_CLIENT_DLL )
-		// They entered a command to change their class, kill them so they spawn with 
+		// They entered a command to change their class, kill them so they spawn with
 		// the new class right away
 		if ( hud_classautokill.GetBool() )
 		{
-            engine->ClientCmd( "kill" );
+          // engine->ClientCmd( "kill" );
 		}
 #endif // !CSTRIKE_DLL && !TF_CLIENT_DLL
 	}
@@ -207,8 +207,8 @@ void CClassMenu::ShowPanel(bool bShow)
 				m_mouseoverButtons[i]->HidePage();	// Hide the rest
 			}
 		}
-		
-		if ( m_iScoreBoardKey == BUTTON_CODE_INVALID ) 
+
+		if ( m_iScoreBoardKey == BUTTON_CODE_INVALID )
 		{
 			m_iScoreBoardKey = gameuifuncs->GetButtonCodeForBind( "showscores" );
 		}
@@ -218,7 +218,7 @@ void CClassMenu::ShowPanel(bool bShow)
 		SetVisible( false );
 		SetMouseInputEnabled( false );
 	}
-	
+
 	m_pViewPort->ShowBackGround( bShow );
 }
 
@@ -308,9 +308,3 @@ void CClassMenu::OnKeyCodePressed(KeyCode code)
 		BaseClass::OnKeyCodePressed( code );
 	}
 }
-
-
-
-
-
-

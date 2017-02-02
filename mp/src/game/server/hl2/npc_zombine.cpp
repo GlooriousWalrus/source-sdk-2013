@@ -30,20 +30,20 @@
 #include "hl2_player.h"
 #include "hl2_gamerules.h"
 
-
-#include "hl2mp_gamerules.h"
-
 #include "basecombatweapon.h"
 #include "basegrenade_shared.h"
 #include "grenade_frag.h"
 
 #include "ai_interactions.h"
 
+//SecobMod__MiscFixes: Here we include the hl2mp gamerules so that calls to darkness mode work.
+#include "hl2mp_gamerules.h"
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
 enum
-{	
+{
 	SQUAD_SLOT_ZOMBINE_SPRINT1 = LAST_SHARED_SQUADSLOT,
 	SQUAD_SLOT_ZOMBINE_SPRINT2,
 };
@@ -170,7 +170,7 @@ private:
 
 	float	m_flSuperFastAttackTime;
 	float   m_flGrenadePullTime;
-	
+
 	int		m_iGrenadeCount;
 
 	EHANDLE	m_hGrenade;
@@ -206,7 +206,7 @@ void CNPC_Zombine::Spawn( void )
 
 	m_fIsTorso = false;
 	m_fIsHeadless = false;
-	
+
 #ifdef HL2_EPISODIC
 	SetBloodColor( BLOOD_COLOR_ZOMBIE );
 #else
@@ -328,7 +328,7 @@ int CNPC_Zombine::SelectSchedule( void )
 	if ( HasCondition( COND_ZOMBINE_GRENADE ) )
 	{
 		ClearCondition( COND_ZOMBINE_GRENADE );
-		
+
 		return SCHED_ZOMBINE_PULL_GRENADE;
 	}
 
@@ -393,7 +393,7 @@ void CNPC_Zombine::GatherGrenadeConditions( void )
 
 	if ( m_flSuperFastAttackTime >= gpGlobals->curtime )
 		return;
-	
+
 	if ( HasGrenade() )
 		return;
 
@@ -408,7 +408,7 @@ void CNPC_Zombine::GatherGrenadeConditions( void )
 
 	if ( IsOnFire() )
 		return;
-	
+
 	if ( IsRunningDynamicInteraction() == true )
 		return;
 
@@ -443,7 +443,7 @@ void CNPC_Zombine::GatherGrenadeConditions( void )
 	}
 }
 
-int CNPC_Zombine::TranslateSchedule( int scheduleType ) 
+int CNPC_Zombine::TranslateSchedule( int scheduleType )
 {
 	return BaseClass::TranslateSchedule( scheduleType );
 }
@@ -567,7 +567,7 @@ void CNPC_Zombine::HandleAnimEvent( animevent_t *pEvent )
 
 				pGrenade->SetDamage( 200.0f );
 				m_hGrenade = pGrenade;
-				
+
 				EmitSound( "Zombine.ReadyGrenade" );
 
 				// Tell player allies nearby to regard me!
@@ -609,23 +609,23 @@ bool CNPC_Zombine::AllowedToSprint( void )
 {
 	if ( IsOnFire() )
 		return false;
-	
+
 	//If you're sprinting then there's no reason to sprint again.
 	if ( IsSprinting() )
 		return false;
 
 	int iChance = SPRINT_CHANCE_VALUE;
-	
+
 	Warning( "SPRINTING!" );
 	//UTIL_GetNearestVisiblePlayer(this)
 	CHL2_Player *pPlayer = dynamic_cast <CHL2_Player*> ( UTIL_GetNearestVisiblePlayer(this) );
 
 	if ( pPlayer )
 	{
-		/*if ( HL2GameRules()->IsAlyxInDarknessMode() && pPlayer->FlashlightIsOn() == false )
+		if ( HL2MPRules()->IsAlyxInDarknessMode() && pPlayer->FlashlightIsOn() == false )
 		{
 			iChance = SPRINT_CHANCE_VALUE_DARKNESS;
-		}*/
+		}
 
 		//Bigger chance of this happening if the player is not looking at the zombie
 		if ( pPlayer->FInViewCone( this ) == false )
@@ -634,7 +634,7 @@ bool CNPC_Zombine::AllowedToSprint( void )
 		}
 	}
 
-	if ( HasGrenade() ) 
+	if ( HasGrenade() )
 	{
 		iChance *= 4;
 	}
@@ -644,10 +644,10 @@ bool CNPC_Zombine::AllowedToSprint( void )
 	{
 		if ( IsStrategySlotRangeOccupied( SQUAD_SLOT_ZOMBINE_SPRINT1, SQUAD_SLOT_ZOMBINE_SPRINT2 ) == true )
 			return false;
-		
+
 		if ( random->RandomInt( 0, 100 ) > iChance )
 			return false;
-		
+
 		if ( m_flSprintRestTime > gpGlobals->curtime )
 			return false;
 	}
@@ -741,7 +741,7 @@ void CNPC_Zombine::RunTask( const Task_t *pTask )
 			{
 				GetNavigator()->SetMovementActivity( ACT_WALK );
 			}
-		
+
 			break;
 		}
 		default:
@@ -827,7 +827,7 @@ void CNPC_Zombine::AttackMissSound( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CNPC_Zombine::PainSound( const CTakeDamageInfo &info )
 {
@@ -842,13 +842,13 @@ void CNPC_Zombine::PainSound( const CTakeDamageInfo &info )
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-void CNPC_Zombine::DeathSound( const CTakeDamageInfo &info ) 
+void CNPC_Zombine::DeathSound( const CTakeDamageInfo &info )
 {
 	EmitSound( "Zombine.Die" );
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CNPC_Zombine::AlertSound( void )
 {
@@ -884,7 +884,7 @@ void CNPC_Zombine::IdleSound( void )
 //-----------------------------------------------------------------------------
 void CNPC_Zombine::AttackSound( void )
 {
-	
+
 }
 
 //-----------------------------------------------------------------------------
@@ -895,7 +895,7 @@ const char *CNPC_Zombine::GetHeadcrabModel( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 const char *CNPC_Zombine::GetLegsModel( void )
 {
@@ -963,14 +963,14 @@ void CNPC_Zombine::ReleaseGrenade( Vector vPhysgunPos )
 	{
 		if ( bNegativeRight == true )
 			aActivity = (Activity)ACT_ZOMBINE_GRENADE_FLINCH_WEST;
-		else 
+		else
 			aActivity = (Activity)ACT_ZOMBINE_GRENADE_FLINCH_EAST;
 	}
 	else
 	{
 		if ( bNegativeForward == true )
 			aActivity = (Activity)ACT_ZOMBINE_GRENADE_FLINCH_BACK;
-		else 
+		else
 			aActivity = (Activity)ACT_ZOMBINE_GRENADE_FLINCH_FRONT;
 	}
 
@@ -1035,6 +1035,3 @@ AI_BEGIN_CUSTOM_NPC( npc_zombine, CNPC_Zombine )
 	)
 
 AI_END_CUSTOM_NPC()
-
-
-

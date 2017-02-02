@@ -3272,6 +3272,9 @@ void CTriggerCamera::Disable( void )
 		{
 			((CBasePlayer*)m_hPlayer.Get())->GetActiveWeapon()->RemoveEffects( EF_NODRAW );
 		}
+
+		CBasePlayer *m_hPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
+
 		//return the player to previous takedamage state
 		m_hPlayer->m_takedamage = m_nOldTakeDamage;
 	}
