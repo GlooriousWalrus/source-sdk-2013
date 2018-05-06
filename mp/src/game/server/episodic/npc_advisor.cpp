@@ -27,6 +27,34 @@
 #include "movevars_shared.h"
 #include "particle_parse.h"
 #include "weapon_physcannon.h"
+#include "hl2mp_player.h"
+#include "gamerules.h"
+
+//quicktest
+
+#include "bone_setup.h"
+#include "studio.h"
+#include "ai_route.h"
+#include "ammodef.h"
+#include "npc_bullseye.h"
+#include "physobj.h"
+#include "ai_memory.h"
+#include "collisionutils.h"
+#include "shot_manipulator.h"
+#include "steamjet.h"
+#include "physics_prop_ragdoll.h"
+#include "vehicle_base.h"
+#include "coordsize.h"
+#include "hl2_shareddefs.h"
+#include "te_effect_dispatch.h"
+#include "beam_flags.h"
+#include "prop_combine_ball.h"
+#include "explode.h"
+#include "weapon_physcannon.h"
+#include "weapon_striderbuster.h"
+#include "monstermaker.h"
+#include "weapon_rpg.h"
+
 // #include "mathlib/noise.h"
 
 // this file contains the definitions for the message ID constants (eg ADVISOR_MSG_START_BEAM etc)
@@ -85,7 +113,7 @@ enum
 //
 // Custom tasks.
 //
-enum 
+enum
 {
 	TASK_ADVISOR_FIND_OBJECTS = LAST_SHARED_TASK,
 	TASK_ADVISOR_LEVITATE_OBJECTS,
@@ -168,7 +196,7 @@ public:
 	// CAI_BaseNPC:
 	//
 	virtual float MaxYawSpeed() { return 120.0f; }
-	
+
 	virtual Class_T Classify();
 
 #if NPC_ADVISOR_HAS_BEHAVIOR
@@ -247,7 +275,7 @@ protected:
 	CUtlVector<EHANDLE>	m_physicsObjects;
 	IPhysicsMotionController *m_pLevitateController;
 	CAdvisorLevitate m_levitateCallback;
-	
+
 	EHANDLE m_hLevitateGoal1;
 	EHANDLE m_hLevitateGoal2;
 	EHANDLE m_hLevitationArea;
@@ -255,7 +283,7 @@ protected:
 #if NPC_ADVISOR_HAS_BEHAVIOR
 	// EHANDLE m_hThrowEnt;
 	CUtlVector<EHANDLE>	m_hvStagedEnts;
-	CUtlVector<EHANDLE>	m_hvStagingPositions; 
+	CUtlVector<EHANDLE>	m_hvStagingPositions;
 	// todo: write accessor functions for m_hvStagedEnts so that it doesn't have members added and removed willy nilly throughout
 	// code (will make the networking below more reliable)
 
@@ -268,7 +296,7 @@ protected:
 	float  m_playerPinFailsafeTime;
 
 	// keep track of up to four objects after we have thrown them, to prevent oscillation or levitation of recently thrown ammo.
-	EHANDLE m_haRecentlyThrownObjects[kMaxThrownObjectsTracked]; 
+	EHANDLE m_haRecentlyThrownObjects[kMaxThrownObjectsTracked];
 	float   m_flaRecentlyThrownObjectTimes[kMaxThrownObjectsTracked];
 #endif
 
@@ -281,17 +309,17 @@ protected:
 	string_t m_iszStagingEntities;
 	string_t m_iszPriorityEntityGroupName;
 
-	float m_flStagingEnd; 
+	float m_flStagingEnd;
 	float m_flThrowPhysicsTime;
 	float m_flLastThrowTime;
-	float m_flLastPlayerAttackTime; ///< last time the player attacked something. 
+	float m_flLastPlayerAttackTime; ///< last time the player attacked something.
 
 	int   m_iStagingNum; ///< number of objects advisor stages at once
 	bool  m_bWasScripting;
 
-	// unsigned char m_pickFailures; // the number of times we have tried to pick a throwable and failed 
+	// unsigned char m_pickFailures; // the number of times we have tried to pick a throwable and failed
 
-	Vector m_vSavedLeadVel; ///< save off player velocity for leading a bit before actually pelting them. 
+	Vector m_vSavedLeadVel; ///< save off player velocity for leading a bit before actually pelting them.
 #endif
 };
 
@@ -315,7 +343,7 @@ BEGIN_DATADESC( CNPC_Advisor )
 #if NPC_ADVISOR_HAS_BEHAVIOR
 	DEFINE_KEYFIELD( m_iszStagingEntities, FIELD_STRING, "staging_ent_names"), ///< entities named this constitute the positions to which we stage objects to be thrown
 	DEFINE_KEYFIELD( m_iszPriorityEntityGroupName, FIELD_STRING, "priority_grab_name"),
-	
+
 	DEFINE_UTLVECTOR( m_hvStagedEnts, FIELD_EHANDLE ),
 	DEFINE_UTLVECTOR( m_hvStagingPositions, FIELD_EHANDLE ),
 	DEFINE_ARRAY( m_haRecentlyThrownObjects, FIELD_EHANDLE, CNPC_Advisor::kMaxThrownObjectsTracked ),
@@ -412,20 +440,20 @@ int __cdecl AdvisorStagingComparator(const EHANDLE *pe1, const EHANDLE *pe2)
 
 	variant_t var;
 	int val1 = 10, val2 = 10; // default priority is ten
-	
+
 	// read field one
 	if ( pe1->Get()->ReadKeyField( "StagingPriority", &var ) )
 	{
 		val1 = var.Int();
 	}
-	
+
 	// read field two
 	if ( pe2->Get()->ReadKeyField( "StagingPriority", &var ) )
 	{
 		val2 = var.Int();
 	}
 
-	// return comparison (< 0 if pe1<pe2) 
+	// return comparison (< 0 if pe1<pe2)
 	return( val1 - val2 );
 }
 #endif
@@ -439,7 +467,7 @@ int __cdecl AdvisorStagingComparator(const EHANDLE *pe1, const EHANDLE *pe2)
 void CNPC_Advisor::Activate()
 {
 	BaseClass::Activate();
-	
+
 	m_hLevitateGoal1  = gEntList.FindEntityGeneric( NULL, STRING( m_iszLevitateGoal1 ),  this );
 	m_hLevitateGoal2  = gEntList.FindEntityGeneric( NULL, STRING( m_iszLevitateGoal2 ),  this );
 	m_hLevitationArea = gEntList.FindEntityGeneric( NULL, STRING( m_iszLevitationArea ), this );
@@ -479,7 +507,7 @@ void CNPC_Advisor::UpdateOnRemove()
 	{
 		physenv->DestroyMotionController( m_pLevitateController );
 	}
-	
+
 	BaseClass::UpdateOnRemove();
 }
 
@@ -511,6 +539,7 @@ bool CNPC_Advisor::IsHeavyDamage( const CTakeDamageInfo &info )
 
 
 
+
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 void CNPC_Advisor::StartLevitatingObjects()
@@ -521,7 +550,7 @@ void CNPC_Advisor::StartLevitatingObjects()
 	}
 
 	m_pLevitateController->ClearObjects();
-	
+
 	int nCount = m_physicsObjects.Count();
 	for ( int i = 0; i < nCount; i++ )
 	{
@@ -540,10 +569,10 @@ void CNPC_Advisor::StartLevitatingObjects()
 	}
 }
 
-// This function is used by both version of the entity finder below 
+// This function is used by both version of the entity finder below
 bool CNPC_Advisor::CanLevitateEntity( CBaseEntity *pEntity, int minMass, int maxMass )
 {
-	if (!pEntity || pEntity->IsNPC()) 
+	if (!pEntity || pEntity->IsNPC())
 		return false;
 
 	IPhysicsObject *pPhys = pEntity->VPhysicsGetObject();
@@ -552,15 +581,15 @@ bool CNPC_Advisor::CanLevitateEntity( CBaseEntity *pEntity, int minMass, int max
 
 	float mass = pPhys->GetMass();
 
-	return ( mass >= minMass && 
-			 mass <= maxMass && 
-			 //pEntity->VPhysicsGetObject()->IsAsleep() && 
+	return ( mass >= minMass &&
+			 mass <= maxMass &&
+			 //pEntity->VPhysicsGetObject()->IsAsleep() &&
 			 pPhys->IsMoveable() /* &&
 			!DidThrow(pEntity) */ );
 }
 
 #if NPC_ADVISOR_HAS_BEHAVIOR
-// find an object to throw at the player and start the warning on it. Return object's 
+// find an object to throw at the player and start the warning on it. Return object's
 // pointer if we got something. Otherwise, return NULL if nothing left to throw. Will
 // always leave the prepared object at the head of m_hvStagedEnts
 CBaseEntity *CNPC_Advisor::ThrowObjectPrepare()
@@ -577,7 +606,7 @@ CBaseEntity *CNPC_Advisor::ThrowObjectPrepare()
 			if ( !pPhys )
 			{
 				// reject!
-				
+
 				Write_BeamOff(m_hvStagedEnts[0]);
 				pThrowable = NULL;
 			}
@@ -602,7 +631,7 @@ CBaseEntity *CNPC_Advisor::ThrowObjectPrepare()
 		// play the sound, attach the light, fire the trigger
 		EmitSound( "NPC_Advisor.ObjectChargeUp" );
 
-		m_OnThrowWarn.FireOutput(pThrowable,this); 
+		m_OnThrowWarn.FireOutput(pThrowable,this);
 		m_flThrowPhysicsTime = gpGlobals->curtime + advisor_throw_warn_time.GetFloat();
 
 		if ( GetEnemy() )
@@ -662,17 +691,17 @@ void CNPC_Advisor::StartTask( const Task_t *pTask )
 			}
 
 			/*
-			// this is the old mechanism, using a hardcoded box and an entity enumerator. 
+			// this is the old mechanism, using a hardcoded box and an entity enumerator.
 			// since deprecated.
 
 			else
 			{
 				CBaseEntity *list[128];
-				
+
 				m_physicsObjects.RemoveAll();
 
 				//NDebugOverlay::Box( GetAbsOrigin(), Vector( -408, -368, -188 ), Vector( 92, 208, 168 ), 255, 255, 0, 1, 5 );
-				
+
 				// one-off class used to determine which entities we want from the UTIL_EntitiesInBox
 				class CAdvisorLevitateEntitiesEnum : public CFlaggedEntitiesEnum
 				{
@@ -730,10 +759,10 @@ void CNPC_Advisor::StartTask( const Task_t *pTask )
 			StartLevitatingObjects();
 
 			m_flThrowPhysicsTime = gpGlobals->curtime + advisor_throw_rate.GetFloat();
-			
+
 			break;
 		}
-		
+
 		case TASK_ADVISOR_STAGE_OBJECTS:
 		{
             // m_pickFailures = 0;
@@ -752,7 +781,7 @@ void CNPC_Advisor::StartTask( const Task_t *pTask )
 
 			break;
 		}
-	
+
 		// we're about to pelt the player with everything. Start the warning effect on the first object.
 		case TASK_ADVISOR_BARRAGE_OBJECTS:
 		{
@@ -764,12 +793,12 @@ void CNPC_Advisor::StartTask( const Task_t *pTask )
 				TaskFail( "Nothing to throw!" );
 				return;
 			}
-			
+
 			m_vSavedLeadVel.Invalidate();
 
 			break;
 		}
-		
+
 		case TASK_ADVISOR_PIN_PLAYER:
 		{
 
@@ -807,7 +836,7 @@ void CNPC_Advisor::RunTask( const Task_t *pTask )
 				TaskComplete();
 				return;
 			}
-						
+
 			// set the top and bottom on the levitation volume from the entities. If we don't have
 			// both, zero it out so that we can use the old-style simpler mechanism.
 			if ( m_hLevitateGoal1 && m_hLevitateGoal2 )
@@ -824,18 +853,18 @@ void CNPC_Advisor::RunTask( const Task_t *pTask )
 			}
 			else
 			{
-				m_levitateCallback.m_vecGoalPos1.Invalidate(); 
-				m_levitateCallback.m_vecGoalPos2.Invalidate(); 
+				m_levitateCallback.m_vecGoalPos1.Invalidate();
+				m_levitateCallback.m_vecGoalPos2.Invalidate();
 
-				// the below two stanzas are used for old-style floating, which is linked 
+				// the below two stanzas are used for old-style floating, which is linked
 				// to float up before thrown and down after
 				if ( flTimeToThrow > 2.0f )
 				{
-					m_levitateCallback.m_flFloat = 1.06f; 
+					m_levitateCallback.m_flFloat = 1.06f;
 				}
 				else
 				{
-					m_levitateCallback.m_flFloat = 0.94f; 
+					m_levitateCallback.m_flFloat = 0.94f;
 				}
 			}
 
@@ -855,12 +884,12 @@ void CNPC_Advisor::RunTask( const Task_t *pTask )
 			}*/
 
 			break;
-		}	
-		
+		}
+
 		// Pick a random object that we are levitating. If we have a clear LOS from that object
 		// to our enemy's eyes, choose that one to throw. Otherwise, keep looking.
 		case TASK_ADVISOR_STAGE_OBJECTS:
-		{	
+		{
 			if (m_iStagingNum > m_hvStagingPositions.Count())
 			{
 				Warning( "Advisor tries to stage %d objects but only has %d positions named %s! Overriding.\n", m_iStagingNum, m_hvStagingPositions.Count(), m_iszStagingEntities );
@@ -872,7 +901,7 @@ void CNPC_Advisor::RunTask( const Task_t *pTask )
 
 			// in the future i'll distribute the staging chronologically. For now, yank all the objects at once.
 			if (m_hvStagedEnts.Count() < m_iStagingNum)
-			{	
+			{
 				// pull another object
 				bool bDesperate = m_flStagingEnd - gpGlobals->curtime < 0.50f; // less than one half second left
 				CBaseEntity *pThrowable = PickThrowable(!bDesperate);
@@ -889,9 +918,9 @@ void CNPC_Advisor::RunTask( const Task_t *pTask )
 					m_hvStagedEnts.AddToTail( pThrowable );
 					Write_BeamOn(pThrowable);
 
-					
-					DispatchParticleEffect( "advisor_object_charge", PATTACH_ABSORIGIN_FOLLOW, 
-							pThrowable, 0, 
+
+					DispatchParticleEffect( "advisor_object_charge", PATTACH_ABSORIGIN_FOLLOW,
+							pThrowable, 0,
 							false  );
 				}
 			}
@@ -917,7 +946,7 @@ void CNPC_Advisor::RunTask( const Task_t *pTask )
 				TaskComplete();
 				break;
 			}
-			
+
 			break;
 		}
 
@@ -929,13 +958,13 @@ void CNPC_Advisor::RunTask( const Task_t *pTask )
 			// do I still have an enemy?
 			if ( !GetEnemy() )
 			{
-				// no? bail all the objects. 
+				// no? bail all the objects.
 				for (int ii = m_hvStagedEnts.Count() - 1 ; ii >=0 ; --ii)
 				{
 
 					IPhysicsObject *pPhys = m_hvStagedEnts[ii]->VPhysicsGetObject();
 					if ( pPhys )
-					{  
+					{
 						pPhys->SetGameFlags(pPhys->GetGameFlags() & (~FVPHYSICS_NO_PLAYER_PICKUP) );
 					}
 				}
@@ -949,7 +978,7 @@ void CNPC_Advisor::RunTask( const Task_t *pTask )
 
 			// do I still have something to throw at the player?
 			CBaseEntity *pThrowable = m_hvStagedEnts[0];
-			while (!pThrowable) 
+			while (!pThrowable)
 			{	// player has destroyed whatever I planned to hit him with, get something else
                 if (m_hvStagedEnts.Count() > 0)
 				{
@@ -969,15 +998,15 @@ void CNPC_Advisor::RunTask( const Task_t *pTask )
 				break;
 			}
 
-			if ( (gpGlobals->curtime > m_flThrowPhysicsTime - advisor_throw_lead_prefetch_time.GetFloat()) && 
+			if ( (gpGlobals->curtime > m_flThrowPhysicsTime - advisor_throw_lead_prefetch_time.GetFloat()) &&
 				!m_vSavedLeadVel.IsValid() )
 			{
-				// save off the velocity we will use to lead the player a little early, so that if he jukes 
+				// save off the velocity we will use to lead the player a little early, so that if he jukes
 				// at the last moment he'll have a better shot of dodging the object.
 				m_vSavedLeadVel = GetEnemy()->GetAbsVelocity();
 			}
 
-			// if it's time to throw something, throw it and go on to the next one. 
+			// if it's time to throw something, throw it and go on to the next one.
 			if (gpGlobals->curtime > m_flThrowPhysicsTime)
 			{
 				IPhysicsObject *pPhys = pThrowable->VPhysicsGetObject();
@@ -1001,11 +1030,11 @@ void CNPC_Advisor::RunTask( const Task_t *pTask )
 				}
 			}
 			else
-			{	
+			{
 				// wait, bide time
 				// PullObjectToStaging(pThrowable, m_hvStagingPositions[ii]->GetAbsOrigin());
 			}
-		
+
 			break;
 		}
 
@@ -1050,7 +1079,7 @@ void CNPC_Advisor::RunTask( const Task_t *pTask )
 
 			Vector displacement = desiredPos - playerPos;
 
-			float desiredDisplacementLen = ExponentialDecay(0.250f,gpGlobals->frametime);// * sqrt(displacementLen);			
+			float desiredDisplacementLen = ExponentialDecay(0.250f,gpGlobals->frametime);// * sqrt(displacementLen);
 
 			Vector nuPos = playerPos + (displacement * (1.0f - desiredDisplacementLen));
 
@@ -1070,32 +1099,34 @@ void CNPC_Advisor::RunTask( const Task_t *pTask )
 
 #endif
 
-// helper function for testing whether or not an avisor is allowed to grab an object
-static bool AdvisorCanPickObject(CBasePlayer *pPlayer, CBaseEntity *pEnt)
-{
-	Assert( pPlayer != NULL );
-
-	// Is the player carrying something?
-	CBaseEntity *pHeldObject = GetPlayerHeldEntity(pPlayer);
-
-	if( !pHeldObject )
-	{
-		pHeldObject = PhysCannonGetHeldEntity( pPlayer->GetActiveWeapon() );
-	}
-
-	if( pHeldObject == pEnt )
-	{
-		return false;
-	}
-
-	if ( pEnt->GetCollisionGroup() == COLLISION_GROUP_DEBRIS )
-	{
-		return false;
-	}
-
-	return true;
-}
-
+// #if defined(HL2_DLL) && !defined(HL2MP)
+// // helper function for testing whether or not an avisor is allowed to grab an object
+// static bool AdvisorCanPickObject(CBasePlayer *pPlayer, CBaseEntity *pEnt)
+// {
+// 	Assert( pPlayer != NULL );
+//
+// 	// Is the player carrying something?
+// 	CBaseEntity *pHeldObject = GetPlayerHeldEntity(pPlayer);
+//
+// 	if( !pHeldObject )
+// 	{
+// 		pHeldObject = PhysCannonGetHeldEntity( pPlayer->GetActiveWeapon() );
+// 	}
+//
+// 	if( pHeldObject == pEnt )
+// 	{
+// 		return false;
+// 	}
+//
+// 	if ( pEnt->GetCollisionGroup() == COLLISION_GROUP_DEBRIS )
+// 	{
+// 		return false;
+// 	}
+//
+// 	return true;
+// }
+//
+// #endif
 
 #if NPC_ADVISOR_HAS_BEHAVIOR
 //-----------------------------------------------------------------------------
@@ -1113,10 +1144,10 @@ CBaseEntity *CNPC_Advisor::PickThrowable( bool bRequireInView )
 		return NULL;
 
 	const int numObjs = m_physicsObjects.Count(); ///< total number of physics objects in my system
-	if (numObjs < 1) 
+	if (numObjs < 1)
 		return NULL; // bail out if nothing available
 
-	
+
 	// used for require-in-view
 	Vector eyeForward, eyeOrigin;
 	if (pPlayer)
@@ -1141,28 +1172,28 @@ CBaseEntity *CNPC_Advisor::PickThrowable( bool bRequireInView )
 		for (int ii = 0 ; ii < numObjs ; ++ii )
 		{
 			CBaseEntity *pThrowEnt = m_physicsObjects[ii];
-			// Assert(pThrowEnt); 
+			// Assert(pThrowEnt);
 			if (!pThrowEnt)
 				continue;
 
 			if (!pThrowEnt->NameMatches(m_iszPriorityEntityGroupName)) // if this is not a priority object
 				continue;
 
-			bool bCanPick = AdvisorCanPickObject( pPlayer, pThrowEnt ) && !m_hvStagedEnts.HasElement( m_physicsObjects[ii] );
-			if (!bCanPick)
-				continue;
+//			bool bCanPick = AdvisorCanPickObject( pPlayer, pThrowEnt ) && !m_hvStagedEnts.HasElement( m_physicsObjects[ii] );
+//			if (!bCanPick)
+//				continue;
 
 			// bCanPick guaranteed true here
 
 			if ( bRequireInView )
 			{
-				bCanPick = (pThrowEnt->GetAbsOrigin() - eyeOrigin).Dot(eyeForward) > 0;
+				//bCanPick = (pThrowEnt->GetAbsOrigin() - eyeOrigin).Dot(eyeForward) > 0;
 			}
 
-			if ( bCanPick )
-			{
-				candidates[numCandidates++] = ii; 
-			}
+		//	if ( bCanPick )
+		//	{
+		//		candidates[numCandidates++] = ii;
+		//	}
 		}
 	}
 
@@ -1172,25 +1203,25 @@ CBaseEntity *CNPC_Advisor::PickThrowable( bool bRequireInView )
 		for (int ii = 0 ; ii < numObjs ; ++ii )
 		{
 			CBaseEntity *pThrowEnt = m_physicsObjects[ii];
-			// Assert(pThrowEnt); 
+			// Assert(pThrowEnt);
 			if (!pThrowEnt)
 				continue;
 
-			bool bCanPick = AdvisorCanPickObject( pPlayer, pThrowEnt ) && !m_hvStagedEnts.HasElement( m_physicsObjects[ii] );
-			if (!bCanPick)
-				continue;
+		//	bool bCanPick = AdvisorCanPickObject( pPlayer, pThrowEnt ) && !m_hvStagedEnts.HasElement( m_physicsObjects[ii] );
+		//	if (!bCanPick)
+		//		continue;
 
 			// bCanPick guaranteed true here
 
 			if ( bRequireInView )
 			{
-				bCanPick = (pThrowEnt->GetAbsOrigin() - eyeOrigin).Dot(eyeForward) > 0;
+			//	bCanPick = (pThrowEnt->GetAbsOrigin() - eyeOrigin).Dot(eyeForward) > 0;
 			}
 
-			if ( bCanPick )
-			{
-				candidates[numCandidates++] = ii; 
-			}
+//if ( bCanPick )
+		//	{
+			//	candidates[numCandidates++] = ii;
+		//	}
 		}
 	}
 
@@ -1204,18 +1235,18 @@ CBaseEntity *CNPC_Advisor::PickThrowable( bool bRequireInView )
 }
 
 /*! \TODO
-	Correct bug where Advisor seemed to be throwing stuff at people's feet. 
-	This is because the object was falling slightly in between the staging 
-	and when he threw it, and that downward velocity was getting accumulated 
-	into the throw speed. This is temporarily fixed here by using SetVelocity 
-	instead of AddVelocity, but the proper fix is to pin the object to its 
+	Correct bug where Advisor seemed to be throwing stuff at people's feet.
+	This is because the object was falling slightly in between the staging
+	and when he threw it, and that downward velocity was getting accumulated
+	into the throw speed. This is temporarily fixed here by using SetVelocity
+	instead of AddVelocity, but the proper fix is to pin the object to its
 	staging point during the warn period. That will require maintaining a map
 	of throwables to their staging points during the throw task.
 */
 //-----------------------------------------------------------------------------
 // Impart necessary force on any entity to make it clobber Gordon.
 // Also detaches from levitate controller.
-// The optional lead velocity parameter is for cases when we pre-save off the 
+// The optional lead velocity parameter is for cases when we pre-save off the
 // player's speed, to make last-moment juking more effective
 //-----------------------------------------------------------------------------
 void CNPC_Advisor::HurlObjectAtPlayer( CBaseEntity *pEnt, const Vector &leadVel )
@@ -1241,13 +1272,13 @@ void CNPC_Advisor::HurlObjectAtPlayer( CBaseEntity *pEnt, const Vector &leadVel 
 	{
 		flVelocity = 1000;
 	}
-		
+
 	float flFlightTime = flDist / flVelocity;
 
 	Vector vecThrowAt = vecEnemyPos + flFlightTime * leadVel;
 	Vector vecThrowDir = vecThrowAt - vecObjOrigin;
 	VectorNormalize( vecThrowDir );
-	
+
 	Vector vecVelocity = flVelocity * vecThrowDir;
 	pPhys->SetVelocity( &vecVelocity, NULL );
 
@@ -1259,7 +1290,7 @@ void CNPC_Advisor::HurlObjectAtPlayer( CBaseEntity *pEnt, const Vector &leadVel 
 
 
 //-----------------------------------------------------------------------------
-// do a sweep from an object I'm about to throw, to the target, pushing aside 
+// do a sweep from an object I'm about to throw, to the target, pushing aside
 // anything floating in the way.
 // TODO: this is probably a good profiling candidate.
 //-----------------------------------------------------------------------------
@@ -1269,9 +1300,9 @@ void CNPC_Advisor::PreHurlClearTheWay( CBaseEntity *pThrowable, const Vector &to
 	CBaseEntity *list[128];
 	Ray_t ray;
 
-	
+
 	float boundingRadius = pThrowable->BoundingRadius();
-	
+
 	ray.Init( pThrowable->GetAbsOrigin(), toPos,
 			  Vector(-boundingRadius,-boundingRadius,-boundingRadius),
 		      Vector( boundingRadius, boundingRadius, boundingRadius) );
@@ -1290,16 +1321,16 @@ void CNPC_Advisor::PreHurlClearTheWay( CBaseEntity *pThrowable, const Vector &to
 			 !DidThrow( obstruction ) )						// and I didn't just throw it
 		{
             IPhysicsObject *pPhys = obstruction->VPhysicsGetObject();
-			Assert(pPhys); 
+			Assert(pPhys);
 
 			// this is an object we want to push out of the way. Compute a vector perpendicular
 			// to the path of the throwables's travel, and thrust the object along that vector.
 			Vector thrust;
 			CalcClosestPointOnLine( obstruction->GetAbsOrigin(),
-									pThrowable->GetAbsOrigin(), 
+									pThrowable->GetAbsOrigin(),
 									toPos,
 									thrust );
-			// "thrust" is now the closest point on the line to the obstruction. 
+			// "thrust" is now the closest point on the line to the obstruction.
 			// compute the difference to get the direction of impulse
 			thrust = obstruction->GetAbsOrigin() - thrust;
 
@@ -1310,7 +1341,7 @@ void CNPC_Advisor::PreHurlClearTheWay( CBaseEntity *pThrowable, const Vector &to
 			float thrustLen = thrust.Length();
 			if (thrustLen > 0.0001f)
 			{
-				thrust *= advisor_throw_clearout_vel.GetFloat() / thrustLen; 
+				thrust *= advisor_throw_clearout_vel.GetFloat() / thrustLen;
 			}
 
 			// heave!
@@ -1333,7 +1364,7 @@ void CNPC_Advisor::PreHurlClearTheWay( CBaseEntity *pThrowable, const Vector &to
 		VectorSubtract( list[i]->WorldSpaceCenter(), vecStartPoint, vecDelta );
 		distance = VectorNormalize( vecDelta );
 		flDot = DotProduct( vecDelta, vecVelDir );
-		
+
 		if ( flDot > flMaxDot )
 		{
 			if ( distance < flBestDist )
@@ -1348,25 +1379,25 @@ void CNPC_Advisor::PreHurlClearTheWay( CBaseEntity *pThrowable, const Vector &to
 
 }
 
-/* 
+/*
 // commented out because unnecessary: we will do this during the DidThrow check
 
 //-----------------------------------------------------------------------------
 // clean out the recently thrown objects array
 //-----------------------------------------------------------------------------
-void CNPC_Advisor::PurgeThrownObjects() 
+void CNPC_Advisor::PurgeThrownObjects()
 {
 	float threeSecondsAgo = gpGlobals->curtime - 3.0f; // two seconds ago
 
 	for (int ii = 0 ; ii < kMaxThrownObjectsTracked ; ++ii)
 	{
-		if ( m_haRecentlyThrownObjects[ii].IsValid() && 
+		if ( m_haRecentlyThrownObjects[ii].IsValid() &&
 			 m_flaRecentlyThrownObjectTimes[ii] < threeSecondsAgo )
 		{
 			 m_haRecentlyThrownObjects[ii].Set(NULL);
 		}
 	}
-	
+
 }
 */
 
@@ -1376,16 +1407,16 @@ void CNPC_Advisor::PurgeThrownObjects()
 //-----------------------------------------------------------------------------
 bool CNPC_Advisor::DidThrow(const CBaseEntity *pEnt)
 {
-	// look through all my objects and see if they match this entity. Incidentally if 
+	// look through all my objects and see if they match this entity. Incidentally if
 	// they're more than three seconds old, purge them.
-	float threeSecondsAgo = gpGlobals->curtime - 3.0f; 
+	float threeSecondsAgo = gpGlobals->curtime - 3.0f;
 
 	for (int ii = 0 ; ii < kMaxThrownObjectsTracked ; ++ii)
 	{
 		// if object is old, skip it.
 		CBaseEntity *pTestEnt = m_haRecentlyThrownObjects[ii];
 
-		if ( pTestEnt ) 
+		if ( pTestEnt )
 		{
 			if ( m_flaRecentlyThrownObjectTimes[ii] < threeSecondsAgo )
 			{
@@ -1447,7 +1478,7 @@ void CNPC_Advisor::PullObjectToStaging( CBaseEntity *pEnt, const Vector &staging
 	// ( a better looking solution would be to use a spring system )
 
 	float desiredDisplacementLen = ExponentialDecay(STAGING_OBJECT_FALLOFF_TIME, gpGlobals->frametime);// * sqrt(displacementLen);
-	
+
 	Vector vel; AngularImpulse angimp;
 	pPhys->GetVelocity(&vel,&angimp);
 
@@ -1461,7 +1492,7 @@ void CNPC_Advisor::PullObjectToStaging( CBaseEntity *pEnt, const Vector &staging
 
 int	CNPC_Advisor::OnTakeDamage( const CTakeDamageInfo &info )
 {
-	// Clip our max 
+	// Clip our max
 	CTakeDamageInfo newInfo = info;
 	if ( newInfo.GetDamage() > 20.0f )
 	{
@@ -1474,7 +1505,7 @@ int	CNPC_Advisor::OnTakeDamage( const CTakeDamageInfo &info )
 	const float oldLastDamageTime = m_flLastDamageTime;
 	int retval = BaseClass::OnTakeDamage(newInfo);
 
-	// we have a special reporting output 
+	// we have a special reporting output
 	if ( oldLastDamageTime != gpGlobals->curtime )
 	{
 		// only fire once per frame
@@ -1503,7 +1534,7 @@ int CNPC_Advisor::SelectSchedule()
 		case NPC_STATE_ALERT:
 		{
 			return SCHED_ADVISOR_IDLE_STAND;
-		} 
+		}
 
 		case NPC_STATE_COMBAT:
 		{
@@ -1513,9 +1544,9 @@ int CNPC_Advisor::SelectSchedule()
 					return SCHED_ADVISOR_TOSS_PLAYER;
 				else
 					return SCHED_ADVISOR_COMBAT;
-				
+
 			}
-			
+
 			return SCHED_ADVISOR_IDLE_STAND;
 		}
 	}
@@ -1536,10 +1567,10 @@ Vector CNPC_Advisor::GetThrowFromPos( CBaseEntity *pEnt )
 
 	float effecRadius = cProp->BoundingRadius(); // radius of object (important for kickout)
 	float howFarInFront = advisor_throw_stage_distance.GetFloat() + effecRadius * 1.43f;// clamp(lenToPlayer - posDist + effecRadius,effecRadius*2,90.f + effecRadius);
-	
+
 	Vector fwd;
 	GetVectors(&fwd,NULL,NULL);
-	
+
 	return GetAbsOrigin() + fwd*howFarInFront;
 }
 #endif
@@ -1550,7 +1581,7 @@ Vector CNPC_Advisor::GetThrowFromPos( CBaseEntity *pEnt )
 void CNPC_Advisor::Precache()
 {
 	BaseClass::Precache();
-	
+
 	PrecacheModel( STRING( GetModelName() ) );
 
 #if NPC_ADVISOR_HAS_BEHAVIOR
@@ -1644,9 +1675,9 @@ void CNPC_Advisor::InputSetStagingNum( inputdata_t &inputdata )
 	m_iStagingNum = inputdata.value.Int();
 }
 
-// 
+//
 //  cause the player to be pinned to a point in space
-// 
+//
 void CNPC_Advisor::InputPinPlayer( inputdata_t &inputdata )
 {
 	string_t targetname = inputdata.value.StringID();
@@ -1673,7 +1704,7 @@ void CNPC_Advisor::InputPinPlayer( inputdata_t &inputdata )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CNPC_Advisor::OnScheduleChange( void )
 {
@@ -1683,7 +1714,7 @@ void CNPC_Advisor::OnScheduleChange( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CNPC_Advisor::GatherConditions( void )
 {
@@ -1695,7 +1726,7 @@ void CNPC_Advisor::GatherConditions( void )
 	{
 		SetCondition( COND_ADVISOR_PHASE_INTERRUPT );
 	}
-	
+
 	// Retain this
 	m_bWasScripting = bInScript;
 }
@@ -1850,7 +1881,7 @@ void CNPC_Advisor::InputElightOff( inputdata_t &inputdata )
 //==============================================================================================
 CAdvisorLevitate::simresult_e	CAdvisorLevitate::Simulate( IPhysicsMotionController *pController, IPhysicsObject *pObject, float deltaTime, Vector &linear, AngularImpulse &angular )
 {
-   	// this function can be optimized to minimize branching if necessary (PPE branch prediction) 
+   	// this function can be optimized to minimize branching if necessary (PPE branch prediction)
 	CNPC_Advisor *pAdvisor = static_cast<CNPC_Advisor *>(m_Advisor.Get());
 	Assert(pAdvisor);
 
@@ -1860,7 +1891,7 @@ CAdvisorLevitate::simresult_e	CAdvisorLevitate::Simulate( IPhysicsMotionControll
 		if (pAdvisor->DidThrow(static_cast<CBaseEntity *>(pObject->GetGameData())))
 		{
 			linear = Vector( 0, 0, GetCurrentGravity() );
-			
+
 			return SIM_GLOBAL_ACCELERATION;
 		}
 		else
@@ -1881,7 +1912,7 @@ CAdvisorLevitate::simresult_e	CAdvisorLevitate::Simulate( IPhysicsMotionControll
 					angular = Vector( 0, -5, 0 );
 				}
 				else
-				{	// keep moving up 
+				{	// keep moving up
 					linear = Vector( 0, 0, (1.0f + m_flFloat) * GetCurrentGravity() );
 					angular = Vector( 0, 0, 10 );
 				}
@@ -1900,12 +1931,12 @@ CAdvisorLevitate::simresult_e	CAdvisorLevitate::Simulate( IPhysicsMotionControll
 					angular = Vector( 0, 0, 10 );
 				}
 			}
-			
+
 			return SIM_GLOBAL_ACCELERATION;
 		}
 
 		//NDebugOverlay::Cross3D(pos,24.0f,255,255,0,true,0.04f);
-		
+
 	}
 	else // old stateless technique
 	{
@@ -1915,14 +1946,14 @@ CAdvisorLevitate::simresult_e	CAdvisorLevitate::Simulate( IPhysicsMotionControll
 		CBaseEntity *pEnt = (CBaseEntity *)pObject->GetGameData();
 		Vector vecDir1 = m_vecGoalPos1 - pEnt->GetAbsOrigin();
 		VectorNormalize( vecDir1 );
-		
+
 		Vector vecDir2 = m_vecGoalPos2 - pEnt->GetAbsOrigin();
 		VectorNormalize( vecDir2 );
 		*/
-	
+
 		linear = Vector( 0, 0, m_flFloat * GetCurrentGravity() );// + m_flFloat * 0.5 * ( vecDir1 + vecDir2 );
 		angular = Vector( 0, 0, 10 );
-		
+
 		return SIM_GLOBAL_ACCELERATION;
 	}
 
@@ -1953,7 +1984,7 @@ static impactdamagetable_t gAdvisorImpactDamageTable =
 {
 	advisorLinearTable,
 	advisorAngularTable,
-	
+
 	ARRAYSIZE(advisorLinearTable),
 	ARRAYSIZE(advisorAngularTable),
 
@@ -1965,14 +1996,14 @@ static impactdamagetable_t gAdvisorImpactDamageTable =
 	5,		// never take more than 1 pt of damage from anything under 15kg
 	128*128,// <15kg objects must go faster than 36 in/s to do damage
 
-	45,		// large mass in kg 
+	45,		// large mass in kg
 	2,		// large mass scale (anything over 500kg does 4X as much energy to read from damage table)
 	1,		// large mass falling scale
 	0,		// my min velocity
 };
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 // Output : const impactdamagetable_t
 //-----------------------------------------------------------------------------
 const impactdamagetable_t &CNPC_Advisor::GetPhysicsImpactDamageTable( void )
@@ -2003,7 +2034,7 @@ AI_BEGIN_CUSTOM_NPC( npc_advisor, CNPC_Advisor )
 	DECLARE_TASK( TASK_ADVISOR_BARRAGE_OBJECTS ) // hurl all the objects in sequence
 
 	DECLARE_TASK( TASK_ADVISOR_PIN_PLAYER ) // pinion the player to a point in space
-	
+
 	//=========================================================
 	DEFINE_SCHEDULE
 	(
@@ -2034,7 +2065,7 @@ AI_BEGIN_CUSTOM_NPC( npc_advisor, CNPC_Advisor )
 		"		COND_SEE_FEAR"
 		"		COND_ADVISOR_PHASE_INTERRUPT"
 	)
-	
+
 	DEFINE_SCHEDULE
 	(
 		SCHED_ADVISOR_TOSS_PLAYER,
