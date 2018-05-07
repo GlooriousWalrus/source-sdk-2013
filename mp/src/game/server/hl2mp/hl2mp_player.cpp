@@ -22,6 +22,9 @@
 #include "gamestats.h"
 #include "tier0/vprof.h"
 #include "bone_setup.h"
+#include "filesystem.h"
+#include "ammodef.h"
+
 
 #include "engine/IEngineSound.h"
 #include "SoundEmitterSystem/isoundemittersystembase.h"
