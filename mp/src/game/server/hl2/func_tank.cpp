@@ -756,6 +756,14 @@ void CFuncTank::Spawn( void )
 		AddSolidFlags( FSOLID_NOT_SOLID );
 	}
 
+	//SecobMod__Information: This is code added from DutchMegas' Collaborate source mod to fix func_tank for hl2mp usage.
+	// CDynamicProp *pProp = dynamic_cast<CDynamicProp*>(GetParent());
+	// if ( pProp )
+	// {
+	// 	pProp->SetClientSideAnimation( false );
+	// }
+
+
 	m_hControlVolume	= NULL;
 
 	if ( GetParent() && GetParent()->GetBaseAnimating() )
@@ -1041,6 +1049,9 @@ bool CFuncTank::StartControl( CBaseCombatCharacter *pController )
 		m_hController->GetActiveWeapon()->Holster();
 	}
 
+	if ( pController->IsPlayer() )
+	pController->SetNextAttack( gpGlobals->curtime + 1.0f );
+
 	// Set the controller's position to be the use position.
 	m_vecControllerUsePos = m_hController->GetLocalOrigin();
 
@@ -1084,6 +1095,7 @@ void CFuncTank::StopControl()
 	{
 		CBasePlayer *pPlayer = static_cast<CBasePlayer*>( m_hController.Get() );
 		pPlayer->m_Local.m_iHideHUD &= ~HIDEHUD_WEAPONSELECTION;
+		pPlayer->SwitchToNextBestWeapon(pPlayer->GetActiveWeapon());//SecobMod__Information: Restores to a weapon.
 	}
 
 	// Stop thinking.
@@ -2163,6 +2175,8 @@ void CFuncTank::DoMuzzleFlash( void )
 			data.m_nAttachmentIndex = m_nBarrelAttachment;
 			data.m_nEntIndex = pAnim->entindex();
 
+			pAnim->GetAttachment( m_nBarrelAttachment, data.m_vOrigin );
+
 			// FIXME: Create a custom entry here!
 			DispatchEffect( "ChopperMuzzleFlash", data );
 		}
@@ -2174,6 +2188,7 @@ void CFuncTank::DoMuzzleFlash( void )
 			data.m_flScale = 1.0f;
 			data.m_fFlags = MUZZLEFLASH_COMBINE;
 
+			pAnim->GetAttachment( m_nBarrelAttachment, data.m_vOrigin );
 			DispatchEffect( "MuzzleFlash", data );
 		}
 	}
@@ -2440,6 +2455,8 @@ LINK_ENTITY_TO_CLASS( func_tank, CFuncTankGun );
 //-----------------------------------------------------------------------------
 void CFuncTankGun::Fire( int bulletCount, const Vector &barrelEnd, const Vector &forward, CBaseEntity *pAttacker, bool bIgnoreSpread )
 {
+	IPredictionSystem::SuppressHostEvents( NULL );
+
 	int i;
 
 	FireBulletsInfo_t info;
@@ -2970,6 +2987,7 @@ void CFuncTankAirboatGun::DoMuzzleFlash( void )
 		data.m_nEntIndex = m_hAirboatGunModel->entindex();
 		data.m_nAttachmentIndex = m_nGunBarrelAttachment;
 		data.m_flScale = 1.0f;
+		m_hAirboatGunModel->GetAttachment( m_nGunBarrelAttachment, data.m_vOrigin );
 		DispatchEffect( "AirboatMuzzleFlash", data );
 	}
 }
@@ -4223,6 +4241,13 @@ void CFuncTankCombineCannon::FuncTankPostThink()
 
 			Vector vecTargetPosition = GetTargetPosition();
 			CBasePlayer *pPlayer = UTIL_GetNearestVisiblePlayer(this);
+
+			if (pPlayer == NULL)
+			{
+				CreateBeam();
+				return;
+			}
+
 			Vector vecToPlayer = pPlayer->WorldSpaceCenter() - GetAbsOrigin();
 			vecToPlayer.NormalizeInPlace();
 
@@ -4233,13 +4258,19 @@ void CFuncTankCombineCannon::FuncTankPostThink()
 			{
 				//Msg("%s Harrassing player\n", GetDebugName() );
 				vecTargetPosition = pPlayer->EyePosition();
-				bHarass = true;
+				//bHarass = true;
 			}
 			else
 			{
 				//Msg( "%s Bored\n", GetDebugName() );
 				// Just point off in the distance, more or less directly ahead of me.
-				vecTargetPosition = GetAbsOrigin() + m_vecTrueForward * 1900.0f;
+				m_hBeam->SetColor( 0,0, 0 );
+				vecTargetPosition = pPlayer->EyePosition();
+				Vector vecForwardCurrent = vecToPlayer;
+				Vector vecBarrelCurrentEnd = WorldBarrelPosition();//SecobMod__MiscFixes Seco had added to the barrel position + 1.0f;
+				BaseClass::Fire( 1, vecBarrelCurrentEnd, vecForwardCurrent, pPlayer, false );
+				//vecTargetPosition = GetAbsOrigin() + m_vecTrueForward * 1900.0f;
+				bHarass = true;
 			}
 
 			int i;
@@ -4370,8 +4401,14 @@ void CFuncTankCombineCannon::MakeTracer( const Vector &vecTracerSrc, const trace
 {
 	// If the shot passed near the player, shake the screen.
 //	if( AI_IsSinglePlayer() )
-	{
-		Vector vecPlayer = UTIL_GetNearestVisiblePlayer(this)->EyePosition();
+
+		CBasePlayer *pPlayer = UTIL_GetNearestVisiblePlayer(this);
+		if ( pPlayer == NULL )
+		{
+			return;
+		}
+
+		Vector vecPlayer = pPlayer->EyePosition();
 
 		Vector vecNearestPoint = PointOnLineNearestPoint( vecTracerSrc, tr.endpos, vecPlayer );
 
@@ -4382,7 +4419,7 @@ void CFuncTankCombineCannon::MakeTracer( const Vector &vecTracerSrc, const trace
 			// Don't shake the screen if we're hit (within 10 inches), but do shake if a shot otherwise comes within 10 feet.
 			UTIL_ScreenShake( vecNearestPoint, 10, 60, 0.3, 120.0f, SHAKE_START, false );
 		}
-	}
+
 
 	// Send the railgun effect
 	DispatchParticleEffect( "Weapon_Combine_Ion_Cannon", vecTracerSrc, tr.endpos, vec3_angle, NULL );
