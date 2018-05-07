@@ -253,6 +253,8 @@ public:
 	IPlayerInfo *GetPlayerInfo() { return &m_PlayerInfo; }
 	IBotController *GetBotController() { return &m_PlayerInfo; }
 
+	void SafeVehicleExit(CBasePlayer *pPlayer);
+
 	bool m_bTransition; //SecobMod__Information:  This is important as it allows the game to save each players progress over a map change. Create the booleans required for transitions to work.
 	bool m_bTransitionTeleported; //SecobMod__Information:  This is important as it allows the game to save each players progress over a map change.  Create the booleans required for transitions to work.
 

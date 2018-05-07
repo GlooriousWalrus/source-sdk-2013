@@ -34,6 +34,8 @@
 #include "ai_behavior_lead.h"
 #include "gameinterface.h"
 #include "ilagcompensationmanager.h"
+#include "hl2mp_player.h"
+
 
 #ifdef HL2_DLL
 #include "hl2_player.h"
@@ -48,6 +50,8 @@ ConVar g_debug_transitions( "g_debug_transitions", "0", FCVAR_NONE, "Set to 1 an
 // Global list of triggers that care about weapon fire
 // Doesn't need saving, the triggers re-add themselves on restore.
 CUtlVector< CHandle<CTriggerMultiple> >	g_hWeaponFireTriggers;
+
+extern bool Transitioned;
 
 extern CServerGameDLL	g_ServerGameDLL;
 extern bool				g_fGameOver;
@@ -1630,6 +1634,10 @@ void CChangeLevel::ChangeLevelNow( CBaseEntity *pActivator )
 				}
 			}
 		//===================================================================================
+
+		CHL2MP_Player *p2Player = (CHL2MP_Player *)UTIL_GetLocalPlayer();
+    //p2Player->SaveTransitionFile();
+    //Transitioned = true;
 
 			// This object will get removed in the call to engine->ChangeLevel, copy the params into "safe" memory
 			Q_strncpy(st_szNextMap, m_szMapName, sizeof(st_szNextMap));
@@ -3256,38 +3264,49 @@ void CTriggerCamera::Enable( void )
 // Purpose:
 //-----------------------------------------------------------------------------
 void CTriggerCamera::Disable( void )
-{
-	if ( m_hPlayer && m_hPlayer->IsAlive() )
-	{
-		if ( HasSpawnFlags( SF_CAMERA_PLAYER_NOT_SOLID ) )
-		{
-			m_hPlayer->RemoveSolidFlags( FSOLID_NOT_SOLID );
-		}
+    {
+    for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+            {
+            CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
 
-		((CBasePlayer*)m_hPlayer.Get())->SetViewEntity( m_hPlayer );
-		((CBasePlayer*)m_hPlayer.Get())->EnableControl(TRUE);
+    if (pPlayer == NULL)
+    {
+    //Must be a Local Server Host if we get here (i think).
+        Assert( m_hPlayer->IsPlayer() );
+    pPlayer = ((CBasePlayer*)m_hPlayer.Get());
+    }
 
-		// Restore the player's viewmodel
-		if ( ((CBasePlayer*)m_hPlayer.Get())->GetActiveWeapon() )
-		{
-			((CBasePlayer*)m_hPlayer.Get())->GetActiveWeapon()->RemoveEffects( EF_NODRAW );
-		}
+    m_hPlayer = pPlayer;
 
-		CBasePlayer *m_hPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
+        if ( m_hPlayer && m_hPlayer->IsAlive() )
+        {
+            if ( HasSpawnFlags( SF_CAMERA_PLAYER_NOT_SOLID ) )
+            {
+                m_hPlayer->RemoveSolidFlags( FSOLID_NOT_SOLID );
+            }
 
-		//return the player to previous takedamage state
-		m_hPlayer->m_takedamage = m_nOldTakeDamage;
-	}
+            ((CBasePlayer*)m_hPlayer.Get())->SetViewEntity( m_hPlayer );
+            ((CBasePlayer*)m_hPlayer.Get())->EnableControl(TRUE);
 
-	m_state = USE_OFF;
-	m_flReturnTime = gpGlobals->curtime;
-	SetThink( NULL );
+            // Restore the player's viewmodel
+            if ( ((CBasePlayer*)m_hPlayer.Get())->GetActiveWeapon() )
+            {
+                ((CBasePlayer*)m_hPlayer.Get())->GetActiveWeapon()->RemoveEffects( EF_NODRAW );
+            }
+        }
 
-	m_OnEndFollow.FireOutput(this, this); // dvsents2: what is the best name for this output?
-	SetLocalAngularVelocity( vec3_angle );
+        //return the player to previous takedamage state
+        m_hPlayer->m_takedamage = DAMAGE_YES;
+    }
+        m_state = USE_OFF;
+        m_flReturnTime = gpGlobals->curtime;
+        SetThink( NULL );
 
-	DispatchUpdateTransmitState();
-}
+        m_OnEndFollow.FireOutput(this, this); // dvsents2: what is the best name for this output?
+        SetLocalAngularVelocity( vec3_angle );
+
+        DispatchUpdateTransmitState();
+    }
 
 //-----------------------------------------------------------------------------
 // Purpose:

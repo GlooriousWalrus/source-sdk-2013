@@ -109,6 +109,7 @@ END_SEND_TABLE()
 BEGIN_DATADESC( CHL2MP_Player )
 END_DATADESC()
 
+
 const char *g_ppszRandomCitizenModels[] =
 {
 	"models/coopmod/humans/group03/male_05.mdl",
@@ -142,6 +143,7 @@ const char *g_ppszRandomCombineModels[] =
 	"models/combine_super_soldier.mdl",
 	"models/police.mdl",*/
 };
+
 
 
 #define MAX_COMBINE_MODELS 4
@@ -255,6 +257,8 @@ void CHL2MP_Player::GiveAllItems( void )
 	GiveNamedItem( "weapon_physcannon" );
 
 }
+
+
 
 void CHL2MP_Player::GiveDefaultItems( void )
 {
@@ -599,22 +603,56 @@ void CHL2MP_Player::SetupPlayerSoundsByModel( const char *pModelName )
 	}
 }
 
+void CHL2MP_Player::ResetAnimation( void )
+{
+	if ( IsAlive() )
+	{
+		SetSequence ( -1 );
+		SetActivity( ACT_INVALID );
+
+		if (!GetAbsVelocity().x && !GetAbsVelocity().y)
+			SetAnimation( PLAYER_IDLE );
+		else if ((GetAbsVelocity().x || GetAbsVelocity().y) && ( GetFlags() & FL_ONGROUND ))
+			SetAnimation( PLAYER_WALK );
+		else if (GetWaterLevel() > 1)
+			SetAnimation( PLAYER_WALK );
+	}
+}
+
+
 bool CHL2MP_Player::Weapon_Switch( CBaseCombatWeapon *pWeapon, int viewmodelindex )
 {
 	bool bRet = BaseClass::Weapon_Switch( pWeapon, viewmodelindex );
+
+	if ( bRet == true )
+	{
+		ResetAnimation();
+	}
+
 
 	return bRet;
 }
 
 void CHL2MP_Player::PreThink( void )
 {
+		QAngle vOldAngles = GetLocalAngles();
+		QAngle vTempAngles = GetLocalAngles();
 
+		vTempAngles = EyeAngles();
 
-	BaseClass::PreThink();
-	State_PreThink();
+		if ( vTempAngles[PITCH] > 180.0f )
+		{
+				vTempAngles[PITCH] -= 360.0f;
+		}
 
-	//Reset bullet force accumulator, only lasts one frame
-	m_vecTotalBulletForce = vec3_origin;
+		SetLocalAngles( vTempAngles );
+
+		BaseClass::PreThink();
+		State_PreThink();
+
+		//Reset bullet force accumulator, only lasts one frame
+		m_vecTotalBulletForce = vec3_origin;
+		SetLocalAngles( vOldAngles );
 }
 
 void CHL2MP_Player::PostThink( void )

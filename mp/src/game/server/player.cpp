@@ -194,7 +194,7 @@ ConVar  player_debug_print_damage( "player_debug_print_damage", "0", FCVAR_CHEAT
 
 void CC_GiveCurrentAmmo( void )
 {
-	CBasePlayer *pPlayer = UTIL_GetLocalPlayer();
+	CBasePlayer *pPlayer = UTIL_GetCommandClient();
 
 	if( pPlayer )
 	{
@@ -552,7 +552,7 @@ CBasePlayer *CBasePlayer::CreatePlayer( const char *className, edict_t *ed )
 CBasePlayer::CBasePlayer( )
 {
 	AddEFlags( EFL_NO_AUTO_EDICT_ATTACH );
-	
+
 	m_bTransition = false;
 	m_bTransitionTeleported = false;
 
@@ -2883,6 +2883,11 @@ float CBasePlayer::GetHeldObjectMass( IPhysicsObject *pHeldObject )
 {
 	return 0;
 }
+
+//CBaseEntity	*CBasePlayer::GetHeldObject( void )
+//{
+//		return NULL;
+//}
 
 
 //-----------------------------------------------------------------------------
@@ -5457,7 +5462,7 @@ bool CBasePlayer::GetInVehicle( IServerVehicle *pVehicle, int nRole )
 
 	if ( !pVehicle->IsPassengerVisible( nRole ) )
 	{
-		AddEffects( EF_NODRAW );
+		//AddEffects( EF_NODRAW );
 	}
 
 	// Put us in the vehicle
@@ -6013,7 +6018,7 @@ static void CreateJalopy( CBasePlayer *pPlayer )
 	// Cheat to create a jeep in front of the player
 	Vector vecForward;
 	AngleVectors( pPlayer->EyeAngles(), &vecForward );
-	CBaseEntity *pJeep = (CBaseEntity *)CreateEntityByName( "prop_vehicle_jeep" );
+	CBaseEntity *pJeep = (CBaseEntity *)CreateEntityByName( "prop_vehicle_hl2buggy" );
 	if ( pJeep )
 	{
 		Vector vecOrigin = pPlayer->GetAbsOrigin() + vecForward * 256 + Vector(0,0,64);
@@ -6022,7 +6027,7 @@ static void CreateJalopy( CBasePlayer *pPlayer )
 		pJeep->SetAbsAngles( vecAngles );
 		pJeep->KeyValue( "model", "models/vehicle.mdl" );
 		pJeep->KeyValue( "solid", "6" );
-		pJeep->KeyValue( "targetname", "jeep" );
+		pJeep->KeyValue( "targetname", "hl2buggy" );
 		pJeep->KeyValue( "vehiclescript", "scripts/vehicles/jalopy.txt" );
 		DispatchSpawn( pJeep );
 		pJeep->Activate();
@@ -7638,7 +7643,14 @@ void CStripWeapons::StripWeapons(inputdata_t &data, bool stripSuit)
 	}
 	else if ( !g_pGameRules->IsDeathmatch() )
 	{
-		pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
+		for (int i = 1; i <= gpGlobals->maxClients; i++ )
+		{
+			CBasePlayer *pPlayer = UTIL_PlayerByIndex( i );
+			if ( pPlayer )
+			{
+				pPlayer->RemoveAllItems( stripSuit );
+			}
+		}
 	}
 
 	if ( pPlayer )
@@ -7799,6 +7811,13 @@ void CRevertSaved::LoadThink( void )
 	if ( !gpGlobals->deathmatch )
 	{
 		engine->ServerCommand("reload\n");
+	}
+	else
+	{
+		char *szDefaultMapName = new char[32];
+		Q_strncpy( szDefaultMapName, STRING(gpGlobals->mapname), 32 );
+		engine->ChangeLevel( szDefaultMapName, NULL );
+		return;
 	}
 }
 
