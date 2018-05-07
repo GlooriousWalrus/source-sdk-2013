@@ -1768,7 +1768,7 @@ void CNPC_Citizen::RunTask( const Task_t *pTask )
 					}
 
 					Vector vecEnemyPos = GetEnemy()->BodyTarget(GetAbsOrigin(), false);
-					CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin()); 
+					CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
 					if ( pPlayer && ( ( vecEnemyPos - pPlayer->GetAbsOrigin() ).LengthSqr() < RPG_SAFE_DISTANCE * RPG_SAFE_DISTANCE ) )
 					{
 						m_bRPGAvoidPlayer = true;
@@ -2382,7 +2382,7 @@ bool CNPC_Citizen::IsCommandMoving()
 //-----------------------------------------------------------------------------
 bool CNPC_Citizen::ShouldAutoSummon()
 {
-	if ( !AI_IsSinglePlayer() || !IsFollowingCommandPoint() || !IsInPlayerSquad() )
+	if ( !IsFollowingCommandPoint() || !IsInPlayerSquad() )
 		return false;
 
 	CHL2_Player *pPlayer = (CHL2_Player *)UTIL_GetLocalPlayer();
@@ -3071,8 +3071,8 @@ int CNPC_Citizen::PlayerSquadCandidateSortFunc( const SquadCandidate_t *pLeft, c
 //-----------------------------------------------------------------------------
 void CNPC_Citizen::FixupPlayerSquad()
 {
-	if ( !AI_IsSinglePlayer() )
-		return;
+	//if ( !AI_IsSinglePlayer() )
+	//	return;
 
 	m_flTimeJoinedPlayerSquad = gpGlobals->curtime;
 	m_bWasInPlayerSquad = true;
@@ -3132,7 +3132,7 @@ void CNPC_Citizen::FixupPlayerSquad()
 	}
 	else
 	{
-		m_FollowBehavior.SetFollowTarget( UTIL_GetNearestPlayer(GetAbsOrigin()) );
+		m_FollowBehavior.SetFollowTarget( UTIL_GetLocalPlayer() );
 		m_FollowBehavior.SetParameters( AIF_SIMPLE );
 	}
 }
@@ -3141,7 +3141,7 @@ void CNPC_Citizen::FixupPlayerSquad()
 //-----------------------------------------------------------------------------
 void CNPC_Citizen::ClearFollowTarget()
 {
-	m_FollowBehavior.SetFollowTarget( NULL );
+	m_FollowBehavior.SetFollowTarget( UTIL_GetNearestPlayer(GetAbsOrigin()) );
 	m_FollowBehavior.SetParameters( AIF_SIMPLE );
 }
 
@@ -3149,8 +3149,8 @@ void CNPC_Citizen::ClearFollowTarget()
 //-----------------------------------------------------------------------------
 void CNPC_Citizen::UpdateFollowCommandPoint()
 {
-	if ( !AI_IsSinglePlayer() )
-		return;
+	//if ( !AI_IsSinglePlayer() )
+	//	return;
 
 	if ( IsInPlayerSquad() )
 	{
@@ -4139,8 +4139,8 @@ void CCitizenResponseSystem::InputResponseVitalNPC( inputdata_t &inputdata )
 void CCitizenResponseSystem::ResponseThink()
 {
 	bool bStayActive = false;
-	if ( AI_IsSinglePlayer() )
-	{
+	//if ( AI_IsSinglePlayer() )
+
 		for ( int i = 0; i < MAX_CITIZEN_RESPONSES; i++ )
 		{
 			if ( m_flResponseAddedTime[i] )
@@ -4183,7 +4183,7 @@ void CCitizenResponseSystem::ResponseThink()
 				}
 			}
 		}
-	}
+
 
 	// Do we need to keep thinking?
 	if ( bStayActive )

@@ -638,6 +638,13 @@ bool CServerGameDLL::DLLInit( CreateInterfaceFn appSystemFactory,
 	if ( !soundemitterbase->Connect( appSystemFactory ) )
 		return false;
 
+	//SecobMod__Information Okay so what is this doing here? Well it's the best way to work out how to dynamically mount contnet.
+	//Choose a map you want working perfectly. Edit the gameinfo.txt search paths till the map works as well as in a singleplayer game.
+	//Then enable this to see what the searchpaths look like once loaded in game and created a new dynamic mounting code using filesystem->AddSearchPath("", "")
+	//that mimics these search paths. Worked great for SDK 2007 and quite well for SDK 2013, so who knows what the future will bring.
+	Msg ("These are the DEFAULT search paths");
+	filesystem->PrintSearchPaths();
+
 	// cache the globals
 	gpGlobals = pGlobals;
 
@@ -753,6 +760,10 @@ void CServerGameDLL::PostInit()
 
 void CServerGameDLL::DLLShutdown( void )
 {
+	FileHandle_t hFile = g_pFullFileSystem->Open( "cfg/transition.cfg", "w" );
+	CUtlBuffer buf( 0, 0, CUtlBuffer::TEXT_BUFFER );
+	g_pFullFileSystem->WriteFile( "cfg/transition.cfg", "MOD", buf );
+	g_pFullFileSystem->Close( hFile );
 
 	// Due to dependencies, these are not autogamesystems
 	ModelSoundsCacheShutdown();

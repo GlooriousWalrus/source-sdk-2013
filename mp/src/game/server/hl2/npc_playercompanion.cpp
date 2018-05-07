@@ -348,9 +348,12 @@ void CNPC_PlayerCompanion::GatherConditions()
 {
 	BaseClass::GatherConditions();
 
-    CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
-	//if ( AI_IsSinglePlayer() )
+	////SecobMod__Information: Null pointer fixed.
+	CBasePlayer *pPlayer = ToBasePlayer( GetFollowBehavior().GetFollowTarget() );//UTIL_GetNearestPlayer(GetAbsOrigin());
+
+	if ( pPlayer )
 	{
+
 
 		if ( Classify() == CLASS_PLAYER_ALLY_VITAL )
 		{
@@ -496,7 +499,8 @@ void CNPC_PlayerCompanion::GatherConditions()
 		DoCustomSpeechAI();
 	}
 
-	if ( hl2_episodic.GetBool() && !GetEnemy() && HasCondition( COND_HEAR_PLAYER ) )
+	////SecobMod__Information: : Null pointer fixed.
+	if ( pPlayer && hl2_episodic.GetBool() && !GetEnemy() && HasCondition( COND_HEAR_PLAYER ) )
 	{
 		Vector los = ( pPlayer->EyePosition() - EyePosition() );
 		los.z = 0;
@@ -958,104 +962,102 @@ bool CNPC_PlayerCompanion::IsValidReasonableFacing( const Vector &vecSightDir, f
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 int CNPC_PlayerCompanion::TranslateSchedule( int scheduleType )
-{
-	switch( scheduleType )
 	{
-	case SCHED_IDLE_STAND:
-	case SCHED_ALERT_STAND:
-		if( GetActiveWeapon() )
-		{
-			// Everyone with less than half a clip takes turns reloading when not fighting.
-			CBaseCombatWeapon *pWeapon = GetActiveWeapon();
-
-			if( CanReload() && pWeapon->UsesClipsForAmmo1() && pWeapon->Clip1() < ( pWeapon->GetMaxClip1() * .5 ) && OccupyStrategySlot( SQUAD_SLOT_EXCLUSIVE_RELOAD ) )
+			switch( scheduleType )
 			{
-//				if (AI_IsSinglePlayer() )
-				{
-					CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
-					pWeapon = pPlayer->GetActiveWeapon();
-					if( pWeapon && pWeapon->UsesClipsForAmmo1() &&
-						pWeapon->Clip1() < ( pWeapon->GetMaxClip1() * .75 ) &&
-						pPlayer->GetAmmoCount( pWeapon->GetPrimaryAmmoType() ) )
+			case SCHED_IDLE_STAND:
+			case SCHED_ALERT_STAND:
+					if( GetActiveWeapon() )
 					{
-						SpeakIfAllowed( TLK_PLRELOAD );
+							// Everyone with less than half a clip takes turns reloading when not fighting.
+							CBaseCombatWeapon *pWeapon = GetActiveWeapon();
+
+							if( CanReload() && pWeapon->UsesClipsForAmmo1() && pWeapon->Clip1() < ( pWeapon->GetMaxClip1() * .5 ) && OccupyStrategySlot( SQUAD_SLOT_EXCLUSIVE_RELOAD ) )
+							{
+											CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
+
+											pWeapon = pPlayer->GetActiveWeapon();
+											if( pWeapon && pWeapon->UsesClipsForAmmo1() &&
+													pWeapon->Clip1() < ( pWeapon->GetMaxClip1() * .75 ) &&
+													pPlayer->GetAmmoCount( pWeapon->GetPrimaryAmmoType() ) )
+											{
+													SpeakIfAllowed( TLK_PLRELOAD );
+											}
+									return SCHED_RELOAD;
+							}
 					}
-				}
-				return SCHED_RELOAD;
+					break;
+
+			case SCHED_COWER:
+					return SCHED_PC_COWER;
+
+			case SCHED_TAKE_COVER_FROM_BEST_SOUND:
+					{
+							CSound *pSound = GetBestSound(SOUND_DANGER);
+
+							if( pSound && pSound->m_hOwner )
+							{
+									if( pSound->m_hOwner->IsNPC() && FClassnameIs( pSound->m_hOwner, "npc_zombine" ) )
+									{
+											// Run fully away from a Zombine with a grenade.
+											return SCHED_PC_TAKE_COVER_FROM_BEST_SOUND;
+									}
+							}
+
+							return SCHED_PC_MOVE_TOWARDS_COVER_FROM_BEST_SOUND;
+					}
+
+			case SCHED_FLEE_FROM_BEST_SOUND:
+					return SCHED_PC_FLEE_FROM_BEST_SOUND;
+
+			case SCHED_ESTABLISH_LINE_OF_FIRE:
+			case SCHED_MOVE_TO_WEAPON_RANGE:
+					if ( IsMortar( GetEnemy() ) )
+							return SCHED_TAKE_COVER_FROM_ENEMY;
+					break;
+
+			case SCHED_CHASE_ENEMY:
+					if ( IsMortar( GetEnemy() ) )
+							return SCHED_TAKE_COVER_FROM_ENEMY;
+					if ( GetEnemy() && FClassnameIs( GetEnemy(), "npc_combinegunship" ) )
+							return SCHED_ESTABLISH_LINE_OF_FIRE;
+					break;
+
+			case SCHED_ESTABLISH_LINE_OF_FIRE_FALLBACK:
+					// If we're fighting a gunship, try again
+					if ( GetEnemy() && FClassnameIs( GetEnemy(), "npc_combinegunship" ) )
+							return SCHED_ESTABLISH_LINE_OF_FIRE;
+					break;
+
+			case SCHED_RANGE_ATTACK1:
+					if ( IsMortar( GetEnemy() ) )
+							return SCHED_TAKE_COVER_FROM_ENEMY;
+
+					if ( GetShotRegulator()->IsInRestInterval() )
+							return SCHED_STANDOFF;
+
+					if( !OccupyStrategySlotRange( SQUAD_SLOT_ATTACK1, SQUAD_SLOT_ATTACK2 ) )
+							return SCHED_STANDOFF;
+					break;
+
+			case SCHED_FAIL_TAKE_COVER:
+					if ( IsEnemyTurret() )
+					{
+							return SCHED_PC_FAIL_TAKE_COVER_TURRET;
+					}
+					break;
+			case SCHED_RUN_FROM_ENEMY_FALLBACK:
+					{
+							if ( HasCondition( COND_CAN_RANGE_ATTACK1 ) )
+							{
+									return SCHED_RANGE_ATTACK1;
+							}
+							break;
+					}
 			}
-		}
-		break;
 
-	case SCHED_COWER:
-		return SCHED_PC_COWER;
-
-	case SCHED_TAKE_COVER_FROM_BEST_SOUND:
-		{
-			CSound *pSound = GetBestSound(SOUND_DANGER);
-
-			if( pSound && pSound->m_hOwner )
-			{
-				if( pSound->m_hOwner->IsNPC() && FClassnameIs( pSound->m_hOwner, "npc_zombine" ) )
-				{
-					// Run fully away from a Zombine with a grenade.
-					return SCHED_PC_TAKE_COVER_FROM_BEST_SOUND;
-				}
-			}
-
-			return SCHED_PC_MOVE_TOWARDS_COVER_FROM_BEST_SOUND;
-		}
-
-	case SCHED_FLEE_FROM_BEST_SOUND:
-		return SCHED_PC_FLEE_FROM_BEST_SOUND;
-
-	case SCHED_ESTABLISH_LINE_OF_FIRE:
-	case SCHED_MOVE_TO_WEAPON_RANGE:
-		if ( IsMortar( GetEnemy() ) )
-			return SCHED_TAKE_COVER_FROM_ENEMY;
-		break;
-
-	case SCHED_CHASE_ENEMY:
-		if ( IsMortar( GetEnemy() ) )
-			return SCHED_TAKE_COVER_FROM_ENEMY;
-		if ( GetEnemy() && FClassnameIs( GetEnemy(), "npc_combinegunship" ) )
-			return SCHED_ESTABLISH_LINE_OF_FIRE;
-		break;
-
-	case SCHED_ESTABLISH_LINE_OF_FIRE_FALLBACK:
-		// If we're fighting a gunship, try again
-		if ( GetEnemy() && FClassnameIs( GetEnemy(), "npc_combinegunship" ) )
-			return SCHED_ESTABLISH_LINE_OF_FIRE;
-		break;
-
-	case SCHED_RANGE_ATTACK1:
-		if ( IsMortar( GetEnemy() ) )
-			return SCHED_TAKE_COVER_FROM_ENEMY;
-
-		if ( GetShotRegulator()->IsInRestInterval() )
-			return SCHED_STANDOFF;
-
-		if( !OccupyStrategySlotRange( SQUAD_SLOT_ATTACK1, SQUAD_SLOT_ATTACK2 ) )
-			return SCHED_STANDOFF;
-		break;
-
-	case SCHED_FAIL_TAKE_COVER:
-		if ( IsEnemyTurret() )
-		{
-			return SCHED_PC_FAIL_TAKE_COVER_TURRET;
-		}
-		break;
-	case SCHED_RUN_FROM_ENEMY_FALLBACK:
-		{
-			if ( HasCondition( COND_CAN_RANGE_ATTACK1 ) )
-			{
-				return SCHED_RANGE_ATTACK1;
-			}
-			break;
-		}
+			return BaseClass::TranslateSchedule( scheduleType );
 	}
-
-	return BaseClass::TranslateSchedule( scheduleType );
-}
 
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
