@@ -2772,6 +2772,26 @@ void CServerGameClients::ClientDisconnect( edict_t *pEdict )
 				g_pGameRules->ClientDisconnected( pEdict );
 				gamestats->Event_PlayerDisconnected( player );
 			}
+			KeyValues *pkvTransitionRestoreFile = new KeyValues( "cfg/transition.cfg" );
+			if ( pkvTransitionRestoreFile->LoadFromFile( filesystem, "cfg/transition.cfg" ) )
+			{
+				while ( pkvTransitionRestoreFile )
+				{
+					const char *pszSteamID = pkvTransitionRestoreFile->GetName(); //Gets our header, which we use the players SteamID for.
+					const char *PlayerSteamID = engine->GetPlayerNetworkIDString(player->edict()); //Finds the current players Steam ID.
+
+						if ( Q_strcmp( PlayerSteamID, pszSteamID ) != 0)
+						{
+							break;
+						}
+				KeyValues *pkvNULL= pkvTransitionRestoreFile->FindKey( pszSteamID );
+				pkvNULL->deleteThis();
+				//pkvNULL = NULL;
+				//pkvNULL->SaveToFile( filesystem, pkvTransitionRestoreFile, NULL );
+				pkvTransitionRestoreFile->SaveToFile( filesystem, "cfg/transition.cfg" );
+				break;
+				}
+			}
 		}
 
 		// Make sure all Untouch()'s are called for this client leaving

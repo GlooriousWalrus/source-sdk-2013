@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //
@@ -25,3 +25,5 @@
 Vector			g_vecAttackDir;
 int				g_iSkillLevel;
 bool			g_fGameOver;
+
+bool Transitioned;

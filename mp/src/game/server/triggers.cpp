@@ -1636,8 +1636,8 @@ void CChangeLevel::ChangeLevelNow( CBaseEntity *pActivator )
 		//===================================================================================
 
 		CHL2MP_Player *p2Player = (CHL2MP_Player *)UTIL_GetLocalPlayer();
-    //p2Player->SaveTransitionFile();
-    //Transitioned = true;
+    p2Player->SaveTransitionFile();
+    Transitioned = true;
 
 			// This object will get removed in the call to engine->ChangeLevel, copy the params into "safe" memory
 			Q_strncpy(st_szNextMap, m_szMapName, sizeof(st_szNextMap));
@@ -3089,7 +3089,9 @@ void CTriggerCamera::Enable( void )
 
 	if ( !m_hPlayer || !m_hPlayer->IsPlayer() )
 	{
+		Msg ("Not m_hPlayer or m_hPlayer isn't a player!");
 		m_hPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
+		Msg ("m_hPlayer should now be the nearest player.");
 	}
 
 	if ( !m_hPlayer )

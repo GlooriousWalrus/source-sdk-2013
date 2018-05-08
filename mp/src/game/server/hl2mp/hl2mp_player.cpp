@@ -1322,9 +1322,98 @@ CBaseEntity* CHL2MP_Player::EntSelectSpawnPoint( void )
 
 	if ( !pSpot  )
 	{
-		pSpot = gEntList.FindEntityByClassname( pSpot, "info_player_start" );
+	// SecobMod__Enable_Fixed_Multiplayer_AI
+		char szMapName[256];
+		Q_strncpy(szMapName, STRING(gpGlobals->mapname), sizeof(szMapName) );
+		Q_strlower(szMapName);
 
-		if ( pSpot )
+		//SecobMod__Information: Although we don't support official maps for gaming, they are useful for testing and these maps for whatever reason spawn you in the wrong location. As such this
+		// code is here to force players to spawn at the beginning of the selected maps. Custom maps won't require this as they will have deathmatch/class based player starts.
+		if( !Q_strnicmp( szMapName, "d1_canals_01a", 13 )
+	|| !Q_strnicmp( szMapName, "d1_canals_03", 12 )
+	|| !Q_strnicmp( szMapName, "d1_canals_13", 12 )
+	|| !Q_strnicmp( szMapName, "d1_town_01", 10 )
+	|| !Q_strnicmp( szMapName, "d1_town_01a", 11 )
+	|| !Q_strnicmp( szMapName, "d1_town_02", 10 )
+	|| !Q_strnicmp( szMapName, "d1_town_02a", 11 )
+	|| !Q_strnicmp( szMapName, "d1_town_03", 10 )
+	|| !Q_strnicmp( szMapName, "d1_town_04", 10 )
+	|| !Q_strnicmp( szMapName, "d1_town_05", 10 )
+	|| !Q_strnicmp( szMapName, "d2_coast_03", 11)
+	|| !Q_strnicmp( szMapName, "d2_coast_08", 11 )
+	|| !Q_strnicmp( szMapName, "d2_coast_11", 11 )
+	|| !Q_strnicmp( szMapName, "d2_prison_01", 12 )
+	|| !Q_strnicmp( szMapName, "d2_prison_02", 12 )
+	|| !Q_strnicmp( szMapName, "d2_prison_03", 12 )
+	|| !Q_strnicmp( szMapName, "d2_prison_04", 12 )
+	|| !Q_strnicmp( szMapName, "d2_prison_05", 12 )
+	|| !Q_strnicmp( szMapName, "d2_prison_06", 12 )
+	|| !Q_strnicmp( szMapName, "d2_prison_07", 12 )
+	|| !Q_strnicmp( szMapName, "d2_prison_08", 12 )
+	|| !Q_strnicmp( szMapName, "d3_c17_08", 9 )
+	|| !Q_strnicmp( szMapName, "d3_citadel_01", 13 )
+	|| !Q_strnicmp( szMapName, "d3_citadel_02", 13 )
+	|| !Q_strnicmp( szMapName, "d3_citadel_03", 13 )
+	|| !Q_strnicmp( szMapName, "d3_citadel_04", 13 )
+	|| !Q_strnicmp( szMapName, "d3_citadel_05", 13 )
+	|| !Q_strnicmp( szMapName, "d3_breen_01", 11 )
+	|| !Q_strnicmp( szMapName, "ep1_c17_00", 10 )
+	|| !Q_strnicmp( szMapName, "ep1_c17_00a", 11 )
+	|| !Q_strnicmp( szMapName, "ep1_c17_02b", 11 )
+	|| !Q_strnicmp( szMapName, "ep1_c17_05", 10 )
+	|| !Q_strnicmp( szMapName, "ep2_outland_01a", 15 )
+	|| !Q_strnicmp( szMapName, "ep2_outland_03", 14 )
+	|| !Q_strnicmp( szMapName, "ep2_outland_08", 14 )
+	|| !Q_strnicmp( szMapName, "ep2_outland_06", 14 )
+		)
+		{
+			CBaseEntity *pEntity = NULL;
+			CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
+			Vector vecOrigin = pPlayer->GetAbsOrigin();
+			pEntity = gEntList.FindEntityByClassnameNearest( "item_suit", vecOrigin, 0);
+
+
+			if (pEntity != NULL)
+			{
+			vecOrigin = pEntity->GetAbsOrigin();
+			pEntity = gEntList.FindEntityByClassnameNearest( "info_player_start", vecOrigin, 0);
+			pSpot = pEntity;
+			pSpawnpointName = "info_player_start";
+			goto ReturnSpot;
+			}
+			else
+			{
+			pSpot = gEntList.FindEntityByClassname( pSpot, "info_player_start");
+			}
+		}
+		else if( !Q_strnicmp( szMapName, "d1_trainstation_05", 18 ) )
+		{
+			CBaseEntity *pEntity = NULL;
+			CBasePlayer *pPlayer = UTIL_GetNearestPlayer(GetAbsOrigin());
+			Vector vecOrigin = pPlayer->GetAbsOrigin();
+			pEntity = gEntList.FindEntityByClassnameNearest( "npc_alyx", vecOrigin, 0);
+			if (pEntity != NULL)
+			{
+			vecOrigin = pEntity->GetAbsOrigin();
+			pEntity = gEntList.FindEntityByClassnameNearest( "info_player_start", vecOrigin, 0);
+			pSpot = pEntity;
+			pSpawnpointName = "info_player_start";
+			goto ReturnSpot;
+			}
+			else
+			{
+			pSpot = gEntList.FindEntityByClassname( pSpot, "info_player_start");
+			}
+		}
+		else
+		{
+		pSpot = gEntList.FindEntityByClassname( pSpot, "info_player_start");
+		}
+ //SecobMod__Enable_Fixed_Multiplayer_AI
+	}
+
+	if ( pSpot )
+	{
 			goto ReturnSpot;
 	}
 
@@ -1702,4 +1791,172 @@ void CHL2MP_Player::SetupBones( matrix3x4_t *pBoneToWorld, int boneMask )
 		GetModelScale(), // Scaling
 		pBoneToWorld,
 		boneMask );
+}
+
+void CHL2MP_Player::SetArmorValue( int value )
+{
+BaseClass::SetArmorValue(value);
+	m_iArmor = value;
+}
+
+// Armour Settings.
+void CHL2MP_Player::SetMaxArmorValue( int MaxArmorValue )
+{
+	m_iMaxArmor = MaxArmorValue;
+}
+
+
+
+void CHL2MP_Player::SaveTransitionFile(void)
+{
+	FileHandle_t hFile = g_pFullFileSystem->Open( "cfg/transition.cfg", "w" );
+
+	if ( hFile == FILESYSTEM_INVALID_HANDLE )
+	{
+	Warning("Invalid filesystem handle \n");
+	CUtlBuffer buf( 0, 0, CUtlBuffer::TEXT_BUFFER );
+	g_pFullFileSystem->WriteFile( "cfg/transition.cfg", "MOD", buf );
+	return;
+	}
+	else
+	{
+	// Iterate all active players
+	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CHL2MP_Player *pPlayerMP = ToHL2MPPlayer( UTIL_PlayerByIndex( i ) );
+		if (pPlayerMP == NULL)
+		{
+			//SecobMod__Information: If we're a listen server then the host is both a server and a client. As a server they return NULL so we return
+			g_pFullFileSystem->Close( hFile );
+			return;
+		}
+
+		int HealthValue = pPlayerMP->m_iHealth;
+		int ArmourValue = pPlayerMP->m_iArmor;
+		int WeaponSlot = 0;
+
+
+		//Set the weapon slot back to 0 for cleanliness and ease of use in hl2mp_client.cpps restore code.
+		WeaponSlot = 0;
+		Msg("Saving cfg file...\n");
+		//Get this persons steam ID.
+		//Also write on a new line a { and use the SteamID as our heading!.
+		char tmpSteamid[32];
+		Q_snprintf(tmpSteamid,sizeof(tmpSteamid), "\"%s\"\n""{\n",engine->GetPlayerNetworkIDString(pPlayerMP->edict()));
+
+		//Write this persons steam ID to our file.
+		g_pFullFileSystem->Write( &tmpSteamid, strlen(tmpSteamid), hFile );
+
+
+		//Get their Health
+		char data3[32];
+		Q_snprintf( data3,sizeof(data3), "\"Health" "\" ");
+		char data4[32];
+		Q_snprintf(data4,sizeof(data4), "\"%i\"\n", HealthValue);
+		//Write this persons Health to the file.
+		g_pFullFileSystem->Write( &data3, strlen(data3), hFile );
+		g_pFullFileSystem->Write( &data4, strlen(data4), hFile );
+
+		//Get their Armour
+		char data5[32];
+		Q_snprintf( data5,sizeof(data5), "\"Armour" "\" ");
+		char data6[32];
+		Q_snprintf(data6,sizeof(data6), "\"%i\"\n", ArmourValue);
+		//Write this persons Armour to the file.
+		g_pFullFileSystem->Write( &data5, strlen(data5), hFile );
+		g_pFullFileSystem->Write( &data6, strlen(data6), hFile );
+
+
+		//Go through the players inventory to find out their weapons and ammo.
+		CBaseCombatWeapon *pCheck;
+
+		//This is our player. This is set because currently this section is in TakeDamage of hl2mp_player.cpp
+		CBasePlayer *pPlayer = ToBasePlayer(pPlayerMP);
+		const char *weaponName = "";
+		weaponName = pPlayer->GetActiveWeapon()->GetClassname();
+
+		//Get their current weapon so we can attempt to switch to it on spawning.
+		char ActiveWepPre[32];
+		Q_snprintf(ActiveWepPre,sizeof(ActiveWepPre), "\n""\"ActiveWeapon\" ");
+		//Write our weapon.
+		g_pFullFileSystem->Write( &ActiveWepPre, strlen(ActiveWepPre), hFile );
+		char ActiveWep[32];
+		Q_snprintf(ActiveWep,sizeof(ActiveWep), "\"%s\"\n", weaponName);
+		//Write our weapon.
+		g_pFullFileSystem->Write( &ActiveWep, strlen(ActiveWep), hFile );
+
+
+		for ( int i = 0 ; i < WeaponCount(); ++i )
+		{
+			pCheck = GetWeapon( i );
+			if ( !pCheck )
+				continue;
+
+			//Create a temporary int for both primary and secondary clip ammo counts.
+			int TempPrimaryClip = pPlayer->GetAmmoCount( pCheck->GetPrimaryAmmoType());
+			int TempSecondaryClip = pPlayer->GetAmmoCount( pCheck->GetSecondaryAmmoType());
+
+			//Creaye a temporary int for both primary and seconday clip ammo TYPES.
+			int ammoIndex_Pri = pCheck->GetPrimaryAmmoType();
+			int ammoIndex_Sec = pCheck->GetSecondaryAmmoType();
+
+			//Get out weapons classname and get our text set up.
+			char pCheckWep[32];
+			Q_snprintf(pCheckWep,sizeof(pCheckWep), "\"Weapon_%i\" \"%s\"\n", WeaponSlot,pCheck->GetClassname());
+			//Write our weapon.
+			g_pFullFileSystem->Write( &pCheckWep, strlen(pCheckWep), hFile );
+
+				if (TempPrimaryClip >= 1)
+				{
+				//Get out weapons primary clip and get our text set up.
+				char PrimaryClip[32];
+				Q_snprintf(PrimaryClip,sizeof(PrimaryClip), "\"Weapon_%i_PriClip\" \"%i\"\n", WeaponSlot,TempPrimaryClip);
+				//Now write our weapons primary clip count.
+				g_pFullFileSystem->Write( &PrimaryClip, strlen(PrimaryClip), hFile );
+					//Get out weapons primary clip ammo type.
+					if( ammoIndex_Pri != -1 )
+					{
+					char PrimaryWeaponClipAmmoType[32];
+					Q_snprintf(PrimaryWeaponClipAmmoType,sizeof(PrimaryWeaponClipAmmoType), "\"Weapon_%i_PriClipAmmo\" ", WeaponSlot);
+					char PrimaryClipAmmoType[32];
+					Q_snprintf(PrimaryClipAmmoType,sizeof(PrimaryClipAmmoType), "\"%s\"\n", GetAmmoDef()->GetAmmoOfIndex(ammoIndex_Pri)->pName);
+					//Now write our weapons primary clip count.
+					g_pFullFileSystem->Write( &PrimaryWeaponClipAmmoType, strlen(PrimaryWeaponClipAmmoType), hFile );
+					g_pFullFileSystem->Write( &PrimaryClipAmmoType, strlen(PrimaryClipAmmoType), hFile );
+					}
+				}
+
+				if (TempSecondaryClip >= 1)
+				{
+				//Get out weapons secondary clip and get our text set up.
+				char SecondaryClip[32];
+				Q_snprintf(SecondaryClip,sizeof(SecondaryClip), "\"Weapon_%i_SecClip\" \"%i\"\n", WeaponSlot,TempSecondaryClip);
+				//Now write our weapons secondary clip count.
+				g_pFullFileSystem->Write( &SecondaryClip, strlen(SecondaryClip), hFile );
+					//Get out weapons secondary clip ammo type.
+					if( ammoIndex_Sec != -1 )
+					{
+					char SecondaryWeaponClipAmmoType[32];
+					Q_snprintf(SecondaryWeaponClipAmmoType,sizeof(SecondaryWeaponClipAmmoType), "\"Weapon_%i_SecClipAmmo\" ", WeaponSlot);
+					char SecondaryClipAmmoType[32];
+					Q_snprintf(SecondaryClipAmmoType,sizeof(SecondaryClipAmmoType), "\"%s\"\n", GetAmmoDef()->GetAmmoOfIndex(ammoIndex_Pri)->pName);
+					//Now write our weapons primary clip count.
+					g_pFullFileSystem->Write( &SecondaryWeaponClipAmmoType, strlen(SecondaryWeaponClipAmmoType), hFile );
+					g_pFullFileSystem->Write( &SecondaryClipAmmoType, strlen(SecondaryClipAmmoType), hFile );
+					}
+				}
+
+		//Now increase our weapon slot number for the next weapon (if needed).
+		WeaponSlot ++;
+		}
+
+	  //Also write on a new line a } to close off this Players section. Now that we're done with all weapons.
+	  char SecClose[32];
+	  Q_snprintf(SecClose,sizeof(SecClose), "}\n\n",NULL);
+	  g_pFullFileSystem->Write( &SecClose, strlen(SecClose), hFile );
+	}
+
+	//Close the file. Important or changes don't get saved till the exe closes which we don't want.
+	g_pFullFileSystem->Close( hFile );
+	}
 }

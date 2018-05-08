@@ -39,6 +39,29 @@ public:
 class CHL2MP_Player : public CHL2_Player
 {
 public:
+
+	virtual void SaveTransitionFile(void);
+
+	// Armor Ints.
+	int m_iArmor;
+	int m_iMaxArmor;
+	//void	IncrementArmorValue( int nCount, int nMaxValue = -1 );
+	void	SetArmorValue( int value );
+	void	SetMaxArmorValue( int MaxArmorValue );
+
+	// Armor gets.
+	int GetArmorValue()
+	{
+		return m_iArmor;
+	}
+
+
+	int GetMaxArmorValue()
+	{
+		return m_iMaxArmor;
+	}
+
+public:
 	DECLARE_CLASS( CHL2MP_Player, CHL2_Player );
 
 	CHL2MP_Player();
@@ -97,6 +120,8 @@ public:
 
 	void NoteWeaponFired( void );
 	void SetAnimation( PLAYER_ANIM playerAnim );
+
+
 
 	void ResetAnimation( void );
 	void SetPlayerModel( void );
