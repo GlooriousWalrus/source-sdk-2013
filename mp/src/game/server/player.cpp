@@ -2884,10 +2884,10 @@ float CBasePlayer::GetHeldObjectMass( IPhysicsObject *pHeldObject )
 	return 0;
 }
 
-//CBaseEntity	*CBasePlayer::GetHeldObject( void )
-//{
-//		return NULL;
-//}
+CBaseEntity	*CBasePlayer::GetHeldObject( void )
+{
+		return NULL;
+}
 
 
 //-----------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -84,7 +84,7 @@ BEGIN_SIMPLE_DATADESC( JeepWaterData_t )
 	DEFINE_ARRAY( m_flNextRippleTime,			FIELD_TIME,		JEEP_WHEEL_COUNT ),
 	DEFINE_FIELD( m_bBodyInWater,				FIELD_BOOLEAN ),
 	DEFINE_FIELD( m_bBodyWasInWater,			FIELD_BOOLEAN ),
-END_DATADESC()	
+END_DATADESC()
 
 //-----------------------------------------------------------------------------
 // Purpose: Four wheel physics vehicle server vehicle with weaponry
@@ -149,7 +149,7 @@ LINK_ENTITY_TO_CLASS( prop_vehicle_jeep, CPropJeep );
 //#endif
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 CPropJeep::CPropJeep( void )
 {
@@ -171,7 +171,7 @@ CPropJeep::CPropJeep( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::CreateServerVehicle( void )
 {
@@ -181,7 +181,7 @@ void CPropJeep::CreateServerVehicle( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::Precache( void )
 {
@@ -193,6 +193,9 @@ void CPropJeep::Precache( void )
 	PrecacheScriptSound( "PropJeep.AmmoOpen" );
 
 	PrecacheScriptSound( "Jeep.GaussCharge" );
+
+	PrecacheScriptSound( "Airboat_headlight_on" );
+	PrecacheScriptSound( "Airboat_headlight_off" );
 
 	PrecacheModel( GAUSS_BEAM_SPRITE );
 
@@ -256,9 +259,9 @@ void CPropJeep::Activate()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &tr - 
-//			nDamageType - 
+// Purpose:
+// Input  : &tr -
+//			nDamageType -
 //-----------------------------------------------------------------------------
 void CPropJeep::DoImpactEffect( trace_t &tr, int nDamageType )
 {
@@ -275,7 +278,7 @@ void CPropJeep::DoImpactEffect( trace_t &tr, int nDamageType )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::TraceAttack( const CTakeDamageInfo &inputInfo, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
@@ -303,20 +306,20 @@ float CPropJeep::PassengerDamageModifier( const CTakeDamageInfo &info )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 int CPropJeep::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 {
 	//Do scaled up physics damage to the car
 	CTakeDamageInfo info = inputInfo;
 	info.ScaleDamage( 25 );
-	
+
 	// HACKHACK: Scale up grenades until we get a better explosion/pressure damage system
 	if ( inputInfo.GetDamageType() & DMG_BLAST )
 	{
 		info.SetDamageForce( inputInfo.GetDamageForce() * 10 );
 	}
-	
+
 	VPhysicsTakeDamage( info );
 
 	// reset the damage
@@ -343,7 +346,7 @@ int CPropJeep::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 		// Scale the damage and mark that we're passing it in so the base player accepts the damage
 		info.ScaleDamage( PassengerDamageModifier( info ) );
 		info.SetDamageType( info.GetDamageType() | DMG_VEHICLE );
-		
+
 		// Deal the damage to the passenger
 		GetDriver()->TakeDamage( info );
 	}
@@ -352,7 +355,7 @@ int CPropJeep::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 Vector CPropJeep::BodyTarget( const Vector &posSrc, bool bNoisy )
 {
@@ -404,14 +407,14 @@ void CPropJeep::AimGunAt( Vector *endPos, float flInterval )
 	// do a look at in gun space (essentially a delta-lookat)
 	QAngle localEnemyAngles;
 	VectorAngles( localEnemyPosition, localEnemyAngles );
-	
+
 	// convert to +/- 180 degrees
-	localEnemyAngles.x = UTIL_AngleDiff( localEnemyAngles.x, 0 );	
+	localEnemyAngles.x = UTIL_AngleDiff( localEnemyAngles.x, 0 );
 	localEnemyAngles.y = UTIL_AngleDiff( localEnemyAngles.y, 0 );
 
 	float targetYaw = m_aimYaw + localEnemyAngles.y;
 	float targetPitch = m_aimPitch + localEnemyAngles.x;
-	
+
 	// Constrain our angles
 	float newTargetYaw	= clamp( targetYaw, -CANNON_MAX_LEFT_YAW, CANNON_MAX_RIGHT_YAW );
 	float newTargetPitch = clamp( targetPitch, -CANNON_MAX_DOWN_PITCH, CANNON_MAX_UP_PITCH );
@@ -460,7 +463,7 @@ void CPropJeep::AimGunAt( Vector *endPos, float flInterval )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::InitWaterData( void )
 {
@@ -477,7 +480,7 @@ void CPropJeep::InitWaterData( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::HandleWater( void )
 {
@@ -496,7 +499,7 @@ void CPropJeep::HandleWater( void )
 				CreateSplash( m_WaterData.m_vecWheelContactPoints[iWheel] );
 				CreateRipple( m_WaterData.m_vecWheelContactPoints[iWheel] );
 			}
-			
+
 			// Create ripples.
 			if ( m_WaterData.m_bWheelInWater[iWheel] && m_WaterData.m_bWheelWasInWater[iWheel] )
 			{
@@ -518,7 +521,7 @@ void CPropJeep::HandleWater( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 bool CPropJeep::CheckWater( void )
 {
@@ -581,7 +584,7 @@ bool CPropJeep::CheckWater( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::CheckWaterLevel( void )
 {
@@ -589,10 +592,10 @@ void CPropJeep::CheckWaterLevel( void )
 	if ( pEntity && pEntity->IsPlayer() )
 	{
 		CBasePlayer *pPlayer = static_cast<CBasePlayer*>( pEntity );
-		
+
 		Vector vecAttachPoint;
 		QAngle vecAttachAngles;
-		
+
 		// Check eyes. (vehicle_driver_eyes point)
 		int iAttachment = LookupAttachment( "vehicle_driver_eyes" );
 		GetAttachment( iAttachment, vecAttachPoint, vecAttachAngles );
@@ -633,7 +636,7 @@ void CPropJeep::CheckWaterLevel( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::CreateSplash( const Vector &vecPosition )
 {
@@ -650,7 +653,7 @@ void CPropJeep::CreateSplash( const Vector &vecPosition )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::CreateRipple( const Vector &vecPosition )
 {
@@ -671,7 +674,7 @@ void CPropJeep::CreateRipple( const Vector &vecPosition )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::Think( void )
 {
@@ -682,7 +685,7 @@ void CPropJeep::Think( void )
 	if ( m_bEngineLocked )
 	{
 		m_bUnableToFire = true;
-		
+
 		if ( pPlayer != NULL )
 		{
 			pPlayer->m_Local.m_iHideHUD |= HIDEHUD_VEHICLE_CROSSHAIR;
@@ -703,7 +706,7 @@ void CPropJeep::Think( void )
 	HandleWater();
 
 	SetSimulationTime( gpGlobals->curtime );
-	
+
 	SetNextThink( gpGlobals->curtime );
 	SetAnimatedEveryTick( true );
 
@@ -791,7 +794,7 @@ void CPropJeep::Think( void )
 				g_EventQueue.AddEvent( this, "ShowHudHint", 1.5f, this, this );
 			}
 		}
-		
+
 		if ( hl2_episodic.GetBool() )
 		{
 			// Set its running animation idle
@@ -804,7 +807,7 @@ void CPropJeep::Think( void )
 					SetCycle( 0 );
 					m_flAnimTime = gpGlobals->curtime;
 					ResetSequence( nSequence );
-					ResetClientsideFrame();					
+					ResetClientsideFrame();
 				}
 			}
 		}
@@ -834,7 +837,7 @@ void CPropJeep::Think( void )
 		m_flAnimTime = gpGlobals->curtime;
 		m_flPlaybackRate = 0.0;
 		SetCycle( 0 );
-		
+
 		int nSequence = SelectWeightedSequence( ACT_IDLE );
 		ResetSequence( nSequence );
 
@@ -844,11 +847,11 @@ void CPropJeep::Think( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &startPos - 
-//			&endPos - 
-//			width - 
-//			useMuzzle - 
+// Purpose:
+// Input  : &startPos -
+//			&endPos -
+//			width -
+//			useMuzzle -
 //-----------------------------------------------------------------------------
 void CPropJeep::DrawBeam( const Vector &startPos, const Vector &endPos, float width )
 {
@@ -857,7 +860,7 @@ void CPropJeep::DrawBeam( const Vector &startPos, const Vector &endPos, float wi
 
 	//Draw the main beam shaft
 	CBeam *pBeam = CBeam::BeamCreate( GAUSS_BEAM_SPRITE, 0.5 );
-	
+
 	pBeam->SetStartPos( startPos );
 	pBeam->PointEntInit( endPos, this );
 	pBeam->SetEndAttachment( LookupAttachment("Muzzle") );
@@ -870,7 +873,7 @@ void CPropJeep::DrawBeam( const Vector &startPos, const Vector &endPos, float wi
 
 	//Draw electric bolts along shaft
 	pBeam = CBeam::BeamCreate( GAUSS_BEAM_SPRITE, 3.0f );
-	
+
 	pBeam->SetStartPos( startPos );
 	pBeam->PointEntInit( endPos, this );
 	pBeam->SetEndAttachment( LookupAttachment("Muzzle") );
@@ -887,7 +890,7 @@ void CPropJeep::DrawBeam( const Vector &startPos, const Vector &endPos, float wi
 ConVar hap_jeep_cannon_mag("hap_jeep_cannon_mag", "10", 0);
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::FireCannon( void )
 {
@@ -905,7 +908,7 @@ void CPropJeep::FireCannon( void )
 	Vector aimDir;
 	GetCannonAim( &aimDir );
 
-#if defined( WIN32 ) && !defined( _X360 ) 
+#if defined( WIN32 ) && !defined( _X360 )
 	// NVNT apply a punch on fire
 	HapticPunch(m_hPlayer,0,0,hap_jeep_cannon_mag.GetFloat());
 #endif
@@ -925,14 +928,14 @@ void CPropJeep::FireCannon( void )
 
 	CPASAttenuationFilter sndFilter( this, "PropJeep.FireCannon" );
 	EmitSound( sndFilter, entindex(), "PropJeep.FireCannon" );
-	
+
 	// make cylinders of gun spin a bit
 	m_nSpinPos += JEEP_GUN_SPIN_RATE;
 	//SetPoseParameter( JEEP_GUN_SPIN, m_nSpinPos );	//FIXME: Don't bother with this for E3, won't look right
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::FireChargedCannon( void )
 {
@@ -956,11 +959,11 @@ void CPropJeep::FireChargedCannon( void )
 	GetCannonAim( &aimDir );
 
 	Vector endPos = m_vecGunOrigin + ( aimDir * MAX_TRACE_LENGTH );
-	
+
 	//Shoot a shot straight out
 	trace_t	tr;
 	UTIL_TraceLine( m_vecGunOrigin, endPos, MASK_SHOT, this, COLLISION_GROUP_NONE, &tr );
-	
+
 	ClearMultiDamage();
 
 	//Find how much damage to do
@@ -977,7 +980,7 @@ void CPropJeep::FireChargedCannon( void )
 	float flDamage = 15 + ( ( 250 - 15 ) * flChargeAmount );
 
 	CBaseEntity *pHit = tr.m_pEnt;
-	
+
 	//Look for wall penetration
 	if ( tr.DidHitWorld() && !(tr.surface.flags & SURF_SKY) )
 	{
@@ -987,11 +990,11 @@ void CPropJeep::FireChargedCannon( void )
 
 		CPVSFilter filter( tr.endpos );
 		te->GaussExplosion( filter, 0.0f, tr.endpos, tr.plane.normal, 0 );
-		
+
 		Vector	testPos = tr.endpos + ( aimDir * 48.0f );
 
 		UTIL_TraceLine( testPos, tr.endpos, MASK_SHOT, GetDriver(), COLLISION_GROUP_NONE, &tr );
-			
+
 		if ( tr.allsolid == false )
 		{
 			UTIL_DecalTrace( &tr, "RedGlowFade" );
@@ -1047,7 +1050,7 @@ void CPropJeep::FireChargedCannon( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::ChargeCannon( void )
 {
@@ -1101,7 +1104,7 @@ void CPropJeep::ChargeCannon( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::StopChargeSound( void )
 {
@@ -1117,7 +1120,7 @@ void CPropJeep::StopChargeSound( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Finds the true aiming position of the gun (looks at what player 
+// Purpose: Finds the true aiming position of the gun (looks at what player
 //			is looking at and adjusts)
 // Input  : &resultDir - direction to be calculated
 //-----------------------------------------------------------------------------
@@ -1137,24 +1140,24 @@ void CPropJeep::GetCannonAim( Vector *resultDir )
 void CPropJeep::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
 	CBasePlayer *pPlayer = ToBasePlayer( pActivator );
-	
+
 	if ( pPlayer == NULL)
 		return;
 
-	// Find out if the player's looking at our ammocrate hitbox 
+	// Find out if the player's looking at our ammocrate hitbox
 	Vector vecForward;
 	pPlayer->EyeVectors( &vecForward, NULL, NULL );
 
 	trace_t tr;
 	Vector vecStart = pPlayer->EyePosition();
 	UTIL_TraceLine( vecStart, vecStart + vecForward * 1024, MASK_SOLID | CONTENTS_DEBRIS | CONTENTS_HITBOX, pPlayer, COLLISION_GROUP_NONE, &tr );
-	
+
 	if ( tr.m_pEnt == this && tr.hitgroup == JEEP_AMMOCRATE_HITGROUP )
 	{
 		// Player's using the crate.
 		// Fill up his SMG ammo.
 		pPlayer->GiveAmmo( 300, "SMG1");
-		
+
 		if ( ( GetSequence() != LookupSequence( "ammo_open" ) ) && ( GetSequence() != LookupSequence( "ammo_close" ) ) )
 		{
 			// Open the crate
@@ -1162,7 +1165,7 @@ void CPropJeep::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE use
 			m_flPlaybackRate = 0.0;
 			SetCycle( 0 );
 			ResetSequence( LookupSequence( "ammo_open" ) );
-			
+
 			CPASAttenuationFilter sndFilter( this, "PropJeep.AmmoOpen" );
 			EmitSound( sndFilter, entindex(), "PropJeep.AmmoOpen" );
 		}
@@ -1176,7 +1179,7 @@ void CPropJeep::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE use
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 bool CPropJeep::CanExitVehicle( CBaseEntity *pEntity )
 {
@@ -1184,7 +1187,7 @@ bool CPropJeep::CanExitVehicle( CBaseEntity *pEntity )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::DampenEyePosition( Vector &vecVehicleEyePos, QAngle &vecVehicleEyeAngles )
 {
@@ -1222,7 +1225,7 @@ void CPropJeep::ComputePDControllerCoefficients( float *pCoefficientsOut,
 	pCoefficientsOut[0] = flKs * flScale;
 	pCoefficientsOut[1] = ( flKd + flKs * flDeltaTime ) * flScale;
 }
- 
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -1238,7 +1241,7 @@ void CPropJeep::DampenForwardMotion( Vector &vecVehicleEyePos, QAngle &vecVehicl
 
 	// Calculate target speed based on the current vehicle eye position and the last vehicle eye position and frametime.
 	Vector vecVehicleEyeSpeed = ( vecVehicleEyePos - m_vecLastEyeTarget ) / flFrameTime;
-	m_vecLastEyeTarget = vecVehicleEyePos;	
+	m_vecLastEyeTarget = vecVehicleEyePos;
 
 	// Calculate the speed and position deltas.
 	Vector vecDeltaSpeed = vecVehicleEyeSpeed - m_vecEyeSpeed;
@@ -1282,7 +1285,7 @@ void CPropJeep::DampenUpMotion( Vector &vecVehicleEyePos, QAngle &vecVehicleEyeA
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::SetupMove( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper *pHelper, CMoveData *move )
 {
@@ -1308,35 +1311,35 @@ void CPropJeep::SetupMove( CBasePlayer *player, CUserCmd *ucmd, IMoveHelper *pHe
 	if ( ( m_throttleDisableTime > gpGlobals->curtime ) || ( IsOverturned() ) )
 	{
 		m_bUnableToFire = true;
-		
+
 		tmp = (*ucmd);
 		tmp.buttons &= ~(IN_FORWARD|IN_BACK|IN_SPEED);
 		ucmd = &tmp;
 	}
-	
+
 	BaseClass::SetupMove( player, ucmd, pHelper, move );
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::DriveVehicle( float flFrameTime, CUserCmd *ucmd, int iButtonsDown, int iButtonsReleased )
 {
 	int iButtons = ucmd->buttons;
 
 	//Adrian: No headlights on Superfly.
-/*	if ( ucmd->impulse == 100 )
+	if ( ucmd->impulse == 100 )
 	{
 		if (HeadlightIsOn())
 		{
 			HeadlightTurnOff();
 		}
-        else 
+        else
 		{
 			HeadlightTurnOn();
 		}
-	}*/
-		
+	}
+
 	// Only handle the cannon if the vehicle has one
 	if ( m_bHasGun )
 	{
@@ -1371,9 +1374,9 @@ void CPropJeep::DriveVehicle( float flFrameTime, CUserCmd *ucmd, int iButtonsDow
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pPlayer - 
-//			*pMoveData - 
+// Purpose:
+// Input  : *pPlayer -
+//			*pMoveData -
 //-----------------------------------------------------------------------------
 void CPropJeep::ProcessMovement( CBasePlayer *pPlayer, CMoveData *pMoveData )
 {
@@ -1431,7 +1434,7 @@ void CPropJeep::CreateDangerSounds( void )
 
 #if 0
 		trace_t	tr;
-		// put sounds a bit to left and right but slightly closer to Jeep to make a "cone" of sound 
+		// put sounds a bit to left and right but slightly closer to Jeep to make a "cone" of sound
 		// in front of it
 		vecSpot = vecStart + vecDir * (speed * 0.75f) - vecRight * speed * 0.5;
 		UTIL_TraceLine( vecStart, vecSpot, MASK_SHOT, this, COLLISION_GROUP_NONE, &tr );
@@ -1450,7 +1453,7 @@ void CPropJeep::CreateDangerSounds( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::EnterVehicle( CBaseCombatCharacter *pPassenger )
 {
@@ -1467,11 +1470,11 @@ void CPropJeep::EnterVehicle( CBaseCombatCharacter *pPassenger )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::ExitVehicle( int nRole )
 {
-	HeadlightTurnOff();
+	//HeadlightTurnOff();
 
 	BaseClass::ExitVehicle( nRole );
 
@@ -1528,12 +1531,12 @@ void CPropJeep::JeepSeagullThink( void )
 			}
 			else
 			{
-				// Our seagull's moved off us. 
+				// Our seagull's moved off us.
 				m_hSeagull = NULL;
 				SetContextThink( &CPropJeep::JeepSeagullThink, gpGlobals->curtime + JEEP_SEAGULL_THINK_INTERVAL, g_pJeepThinkContext );
 			}
 		}
-		
+
 		return;
 	}
 
@@ -1572,7 +1575,7 @@ void CPropJeep::JeepSeagullThink( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::SpawnPerchedSeagull( void )
 {
@@ -1591,22 +1594,22 @@ void CPropJeep::SpawnPerchedSeagull( void )
 
 	if ( !pSeagull )
 		return;
-	
+
 	pSeagull->AddSpawnFlags( SF_NPC_FADE_CORPSE );
 	pSeagull->SetGroundEntity( this );
 	pSeagull->AddFlag( FL_ONGROUND );
 	pSeagull->SetOwnerEntity( this );
 	pSeagull->SetMoveType( MOVETYPE_FLY );
 	pSeagull->m_bOnJeep = true;
-	
+
 	m_hSeagull = pSeagull;
 
 	AddSeagullPoop( vecOrigin );
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &vecOrigin - 
+// Purpose:
+// Input  : &vecOrigin -
 //-----------------------------------------------------------------------------
 void CPropJeep::AddSeagullPoop( const Vector &vecOrigin )
 {
@@ -1618,14 +1621,14 @@ void CPropJeep::AddSeagullPoop( const Vector &vecOrigin )
 
 		// get circular gaussian spread
 		float x, y, z;
-		do 
+		do
 		{
 			x = random->RandomFloat(-0.5,0.5) + random->RandomFloat(-0.5,0.5);
 			y = random->RandomFloat(-0.5,0.5) + random->RandomFloat(-0.5,0.5);
 			z = x*x+y*y;
 		} while (z > 1);
 		vecPoop += Vector( x * 90, y * 90, 128 );
-		
+
 		trace_t tr;
 		UTIL_TraceLine( vecPoop, vecPoop - Vector(0,0,512), MASK_SHOT, m_hSeagull, COLLISION_GROUP_NONE, &tr );
 		UTIL_DecalTrace( &tr, "BirdPoop" );
@@ -1651,7 +1654,7 @@ void CPropJeep::InputShowHudHint( inputdata_t &inputdata )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::InputStartRemoveTauCannon( inputdata_t &inputdata )
 {
@@ -1665,7 +1668,7 @@ void CPropJeep::InputStartRemoveTauCannon( inputdata_t &inputdata )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CPropJeep::InputFinishRemoveTauCannon( inputdata_t &inputdata )
 {
@@ -1678,7 +1681,7 @@ void CPropJeep::InputFinishRemoveTauCannon( inputdata_t &inputdata )
 // JEEP FOUR WHEEL PHYSICS VEHICLE SERVER VEHICLE
 //========================================================================================================================================
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CJeepFourWheelServerVehicle::NPC_AimPrimaryWeapon( Vector vecTarget )
 {
@@ -1686,8 +1689,8 @@ void CJeepFourWheelServerVehicle::NPC_AimPrimaryWeapon( Vector vecTarget )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : &vecEyeExitEndpoint - 
+// Purpose:
+// Input  : &vecEyeExitEndpoint -
 // Output : int
 //-----------------------------------------------------------------------------
 int CJeepFourWheelServerVehicle::GetExitAnimToUse( Vector &vecEyeExitEndpoint, bool &bAllPointsBlocked )
@@ -1728,4 +1731,16 @@ int CJeepFourWheelServerVehicle::GetExitAnimToUse( Vector &vecEyeExitEndpoint, b
 	}
 
 	return BaseClass::GetExitAnimToUse( vecEyeExitEndpoint, bAllPointsBlocked );
+}
+
+void CPropJeep::HeadlightTurnOn( void )
+{
+EmitSound( "Airboat_headlight_on" );
+m_bHeadlightIsOn = true;
+}
+
+void CPropJeep::HeadlightTurnOff( void )
+{
+EmitSound( "Airboat_headlight_off" );
+m_bHeadlightIsOn = false;
 }

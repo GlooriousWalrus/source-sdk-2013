@@ -934,8 +934,8 @@ CON_COMMAND( fov, "Change players FOV" )
 //------------------------------------------------------------------------------
 void CC_Player_SetModel( const CCommand &args )
 {
-	if ( gpGlobals->deathmatch )
-		return;
+	//if ( gpGlobals->deathmatch )
+		//return;
 
 	CBasePlayer *pPlayer = ToBasePlayer( UTIL_GetCommandClient() );
 	if ( pPlayer && args.ArgC() == 2)
