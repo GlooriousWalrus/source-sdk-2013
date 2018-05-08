@@ -1183,6 +1183,14 @@ void CHL2MP_Player::Event_Killed( const CTakeDamageInfo &info )
 		}
 	}
 
+	if ( (info.GetDamageType() & (DMG_ALWAYSGIB|DMG_LASTGENERICFLAG|DMG_CRUSH)) == (DMG_ALWAYSGIB|DMG_LASTGENERICFLAG|DMG_CRUSH) )
+	{
+		if ( m_hRagdoll )
+		{
+			UTIL_RemoveImmediate( m_hRagdoll );
+		}
+	}
+
 	CBaseEntity *pAttacker = info.GetAttacker();
 
 	if ( pAttacker )

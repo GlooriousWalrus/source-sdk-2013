@@ -2548,9 +2548,10 @@ int CNPC_Strider::MeleeAttack1Conditions( float flDot, float flDist )
 	if ( !pEnemy )
 		return COND_NONE;
 
-	// No more stabbing players.
-	if ( pEnemy->IsPlayer() && !HasSpawnFlags(SF_CAN_STOMP_PLAYER) )
-		return COND_NONE;
+	// lets add some challenge :P
+	// // No more stabbing players.
+	// if ( pEnemy->IsPlayer() && !HasSpawnFlags(SF_CAN_STOMP_PLAYER) )
+	// 	return COND_NONE;
 
 	if( !HasCondition( COND_SEE_ENEMY ) )
 	{
