@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 //===========================================================================//
 
@@ -97,14 +97,14 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// 
+//
 //-----------------------------------------------------------------------------
 struct ViewCustomVisibility_t
 {
 	ViewCustomVisibility_t()
 	{
 		m_nNumVisOrigins = 0;
-		m_VisData.m_fDistToAreaPortalTolerance = FLT_MAX; 
+		m_VisData.m_fDistToAreaPortalTolerance = FLT_MAX;
 		m_iForceViewLeaf = -1;
 	}
 
@@ -146,7 +146,7 @@ struct ViewCustomVisibility_t
 };
 
 //-----------------------------------------------------------------------------
-// 
+//
 //-----------------------------------------------------------------------------
 struct WaterRenderInfo_t
 {
@@ -160,7 +160,7 @@ struct WaterRenderInfo_t
 };
 
 //-----------------------------------------------------------------------------
-// 
+//
 //-----------------------------------------------------------------------------
 class CBase3dView : public CRefCounted<>,
 					protected CViewSetup
@@ -261,7 +261,7 @@ protected:
 
 
 //-----------------------------------------------------------------------------
-// 
+//
 //-----------------------------------------------------------------------------
 
 class CRenderExecutor
@@ -277,7 +277,7 @@ protected:
 };
 
 //-----------------------------------------------------------------------------
-// 
+//
 //-----------------------------------------------------------------------------
 
 class CSimpleRenderExecutor : public CRenderExecutor
@@ -301,6 +301,8 @@ class CViewRender : public IViewRender,
 public:
 	virtual void	Init( void );
 	virtual void	Shutdown( void );
+
+	virtual void    MP_PostSimulate();
 
 	const CViewSetup *GetPlayerViewSetup( ) const;
 
@@ -378,7 +380,7 @@ public:
 	bool			ShouldDrawBrushModels( void );
 
 	const CViewSetup *GetViewSetup( ) const;
-	
+
 	void			DisableVis( void );
 
 	// Sets up the view model position relative to the local player
@@ -432,11 +434,11 @@ private:
 	void			ViewDrawScene( bool bDrew3dSkybox, SkyboxVisibility_t nSkyboxVisible, const CViewSetup &view, int nClearFlags, view_id_t viewID, bool bDrawViewModel = false, int baseDrawFlags = 0, ViewCustomVisibility_t *pCustomVisibility = NULL );
 
 	void			DrawMonitors( const CViewSetup &cameraView );
-    
+
     //dynamic scope
     void            DrawScope( const CViewSetup &cameraView );
-    
-	bool			DrawOneMonitor( ITexture *pRenderTarget, int cameraNum, C_PointCamera *pCameraEnt, const CViewSetup &cameraView, C_BasePlayer *localPlayer, 
+
+	bool			DrawOneMonitor( ITexture *pRenderTarget, int cameraNum, C_PointCamera *pCameraEnt, const CViewSetup &cameraView, C_BasePlayer *localPlayer,
 						int x, int y, int width, int height );
 
 	// Drawing primitives
@@ -457,7 +459,7 @@ private:
 
 	virtual void			ViewDrawScene_Intro( const CViewSetup &view, int nClearFlags, const IntroData_t &introData );
 
-#ifdef PORTAL 
+#ifdef PORTAL
 	// Intended for use in the middle of another ViewDrawScene call, this allows stencils to be drawn after opaques but before translucents are drawn in the main view.
 	void			ViewDrawScene_PortalStencil( const CViewSetup &view, ViewCustomVisibility_t *pCustomVisibility );
 	void			Draw3dSkyboxworld_Portal( const CViewSetup &view, int &nClearFlags, bool &bDrew3dSkybox, SkyboxVisibility_t &nSkyboxVisible, ITexture *pRenderTarget = NULL );
@@ -479,7 +481,7 @@ private:
 
 	// VIS Overrides
 	// Set to true to turn off client side vis ( !!!! rendering will be slow since everything will draw )
-	bool			m_bForceNoVis;	
+	bool			m_bForceNoVis;
 
 	// Some cvars needed by this system
 	const ConVar	*m_pDrawEntities;

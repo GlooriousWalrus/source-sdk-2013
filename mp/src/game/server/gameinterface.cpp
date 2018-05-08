@@ -866,6 +866,8 @@ bool CServerGameDLL::GameInit( void )
 	ResetGlobalState();
 	engine->ServerCommand( "exec game.cfg\n" );
 	engine->ServerExecute( );
+	engine->ServerCommand( "sv_lan 0\n" );
+	engine->ServerCommand( "heartbeat\n" );
 	CBaseEntity::sm_bAccurateTriggerBboxChecks = true;
 
 	IGameEvent *event = gameeventmanager->CreateEvent( "game_init" );
