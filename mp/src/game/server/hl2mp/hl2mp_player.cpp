@@ -1203,6 +1203,10 @@ void CHL2MP_Player::Event_Killed( const CTakeDamageInfo &info )
 
 	RemoveEffects( EF_NODRAW );	// still draw player body
 	StopZooming();
+
+	color32 darkred = {53,0,0,255};
+	UTIL_ScreenFade( this, darkred, 1.0f, 5.0f, FFADE_OUT|FFADE_PURGE|FFADE_STAYOUT );
+
 }
 
 int CHL2MP_Player::OnTakeDamage( const CTakeDamageInfo &inputInfo )
