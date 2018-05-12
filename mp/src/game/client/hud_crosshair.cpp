@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation, All rights reserved. ============//
 //
-// Purpose: 
+// Purpose:
 //
 // $NoKeywords: $
 //=============================================================================//
@@ -75,7 +75,7 @@ void CHudCrosshair::ApplySchemeSettings( IScheme *scheme )
 
 //-----------------------------------------------------------------------------
 // Purpose: Save CPU cycles by letting the HUD system early cull
-// costly traversal.  Called per frame, return true if thinking and 
+// costly traversal.  Called per frame, return true if thinking and
 // painting need to occur.
 //-----------------------------------------------------------------------------
 bool CHudCrosshair::ShouldDraw( void )
@@ -93,6 +93,9 @@ bool CHudCrosshair::ShouldDraw( void )
 	if ( pWeapon && !pWeapon->ShouldDrawCrosshair() )
 		return false;
 
+	if ( pWeapon && pWeapon->IsIronsighted() )
+		return false;
+
 #ifdef PORTAL
 	C_Portal_Player *portalPlayer = ToPortalPlayer(pPlayer);
 	if ( portalPlayer && portalPlayer->IsSuppressingCrosshair() )
@@ -108,9 +111,9 @@ bool CHudCrosshair::ShouldDraw( void )
 	// draw a crosshair only if alive or spectating in eye
 	if ( IsX360() )
 	{
-		bNeedsDraw = m_pCrosshair && 
+		bNeedsDraw = m_pCrosshair &&
 			!engine->IsDrawingLoadingImage() &&
-			!engine->IsPaused() && 
+			!engine->IsPaused() &&
 			( !pPlayer->IsSuitEquipped() || g_pGameRules->IsMultiplayer() ) &&
 			g_pClientMode->ShouldDrawCrosshair() &&
 			!( pPlayer->GetFlags() & FL_FROZEN ) &&
@@ -119,10 +122,10 @@ bool CHudCrosshair::ShouldDraw( void )
 	}
 	else
 	{
-		bNeedsDraw = m_pCrosshair && 
+		bNeedsDraw = m_pCrosshair &&
 			crosshair.GetInt() &&
 			!engine->IsDrawingLoadingImage() &&
-			!engine->IsPaused() && 
+			!engine->IsPaused() &&
 			g_pClientMode->ShouldDrawCrosshair() &&
 			!( pPlayer->GetFlags() & FL_FROZEN ) &&
 			( pPlayer->entindex() == render->GetViewEntity() ) &&
@@ -161,7 +164,7 @@ void CHudCrosshair::GetDrawPosition ( float *pX, float *pY, bool *pbBehindCamera
 	if ( ( pPlayer != NULL ) && ( pPlayer->GetObserverMode()==OBS_MODE_NONE ) )
 	{
 		bool bUseOffset = false;
-		
+
 		Vector vecStart;
 		Vector vecEnd;
 
@@ -206,7 +209,7 @@ void CHudCrosshair::GetDrawPosition ( float *pX, float *pY, bool *pbBehindCamera
 	}
 
 	// MattB - angleCrosshairOffset is the autoaim angle.
-	// if we're not using autoaim, just draw in the middle of the 
+	// if we're not using autoaim, just draw in the middle of the
 	// screen
 	if ( angleCrosshairOffset != vec3_angle )
 	{
@@ -281,7 +284,7 @@ void CHudCrosshair::Paint( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CHudCrosshair::SetCrosshairAngle( const QAngle& angle )
 {
@@ -289,7 +292,7 @@ void CHudCrosshair::SetCrosshairAngle( const QAngle& angle )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CHudCrosshair::SetCrosshair( CHudTexture *texture, const Color& clr )
 {

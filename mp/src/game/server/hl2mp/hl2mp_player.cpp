@@ -112,9 +112,9 @@ END_DATADESC()
 
 const char *g_ppszRandomCitizenModels[] =
 {
-	"models/coopmod/humans/group03/male_05.mdl",
-	"models/coopmod/humans/group03/male_06_sdk.mdl",
-	"models/coopmod/humans/group03/l7h_rebel.mdl",
+	"models/humans/group03/male_05.mdl",
+	"models/humans/group03/male_06_sdk.mdl",
+	"models/humans/group03/l7h_rebel.mdl",
 
 	/*"models/coopmod/humans/group03/male_01.mdl",
 	"models/coopmod/humans/group03/male_02.mdl",
@@ -135,7 +135,7 @@ const char *g_ppszRandomCitizenModels[] =
 
 const char *g_ppszRandomCombineModels[] =
 {
-	"models/coopmod/humans/group03/police_05.mdl",
+	"models/humans/group03/police_05.mdl",
 
 	/*
 	"models/combine_soldier.mdl",
@@ -262,24 +262,24 @@ void CHL2MP_Player::GiveAllItems( void )
 
 void CHL2MP_Player::GiveDefaultItems( void )
 {
-	EquipSuit();
+	//EquipSuit();
 
-	CBasePlayer::GiveAmmo( 255,	"Pistol");
+	//CBasePlayer::GiveAmmo( 255,	"Pistol");
 	//CBasePlayer::GiveAmmo( 45,	"SMG1");
 	//CBasePlayer::GiveAmmo( 1,	"grenade" );
 	//CBasePlayer::GiveAmmo( 6,	"Buckshot");
 	//CBasePlayer::GiveAmmo( 6,	"357" );
 
-	if ( GetPlayerModelType() == PLAYER_SOUNDS_METROPOLICE || GetPlayerModelType() == PLAYER_SOUNDS_COMBINESOLDIER )
-	{
-		GiveNamedItem( "weapon_stunstick" );
-	}
-	else if ( GetPlayerModelType() == PLAYER_SOUNDS_CITIZEN )
-	{
-		GiveNamedItem( "weapon_crowbar" );
-	}
+	// if ( GetPlayerModelType() == PLAYER_SOUNDS_METROPOLICE || GetPlayerModelType() == PLAYER_SOUNDS_COMBINESOLDIER )
+	// {
+	// 	GiveNamedItem( "weapon_stunstick" );
+	// }
+	// else if ( GetPlayerModelType() == PLAYER_SOUNDS_CITIZEN )
+	// {
+	// 	GiveNamedItem( "weapon_crowbar" );
+	// }
 
-	GiveNamedItem( "weapon_pistol" );
+	//GiveNamedItem( "weapon_pistol" );
 
 	const char *szDefaultWeaponName = engine->GetClientConVarValue( engine->IndexOfEdict( edict() ), "cl_defaultweapon" );
 
@@ -310,7 +310,7 @@ void CHL2MP_Player::PickDefaultSpawnTeam( void )
 				{
 					char szReturnString[512];
 
-					Q_snprintf( szReturnString, sizeof (szReturnString ), "cl_playermodel models/coopmod/combine_soldier.mdl\n" );
+					Q_snprintf( szReturnString, sizeof (szReturnString ), "cl_playermodel models/police_05.mdl\n" );
 					engine->ClientCommand ( edict(), szReturnString );
 				}
 
@@ -471,7 +471,7 @@ void CHL2MP_Player::SetPlayerTeamModel( void )
 
 	if ( modelIndex == -1 || ValidatePlayerModel( szModelName ) == false )
 	{
-		szModelName = "models/coopmod/humans/group03/police_05.mdl";
+		szModelName = "models/humans/group03/police_05.mdl";
 		m_iModelType = TEAM_COMBINE;
 
 		char szReturnString[512];
@@ -572,7 +572,7 @@ void CHL2MP_Player::SetPlayerModel( void )
 
 	if ( modelIndex == -1 )
 	{
-		szModelName = "models/coopmod/humans/group03/police_05.mdl";
+		szModelName = "models/humans/group03/police_05.mdl";
 		m_iModelType = TEAM_COMBINE;
 
 		char szReturnString[512];

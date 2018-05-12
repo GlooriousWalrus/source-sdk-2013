@@ -393,13 +393,13 @@ void FinishClientPutInServer( CHL2MP_Player *pPlayer )
 
 				pPlayer->SetArmorValue(PlayerArmourValue);
 
-				pPlayer->SetModel( "models/sdk/Humans/Group03/male_06_sdk.mdl" );
+				pPlayer->SetModel( "models/group03/male_06_sdk.mdl" );
 
 			//PlayerClass bug fix.
-			pPlayer->EquipSuit();
-			pPlayer->StartSprinting();
-			pPlayer->StopSprinting();
-			pPlayer->EquipSuit(false);
+			//pPlayer->EquipSuit();
+			//pPlayer->StartSprinting();
+			//pPlayer->StopSprinting();
+			//pPlayer->EquipSuit(false);
 			}
 			else
 			{
@@ -482,6 +482,7 @@ CBaseEntity* FindEntity( edict_t *pEdict, char *classname)
 void ClientGamePrecache( void )
 {
 	CBaseEntity::PrecacheModel("models/player.mdl");
+	CBaseEntity::PrecacheModel("models/group03/male_06_sdk.mdl");
 	CBaseEntity::PrecacheModel( "models/gibs/agibs.mdl" );
 	CBaseEntity::PrecacheModel ("models/weapons/v_hands.mdl");
 

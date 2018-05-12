@@ -676,7 +676,7 @@ ConVarRef suitcharger( "sk_suitcharger" );
 		bool		addDefault;
 		CBaseEntity	*pWeaponEntity = NULL;
 
-		pPlayer->EquipSuit();
+		//pPlayer->EquipSuit();
 
 		addDefault = true;
 
