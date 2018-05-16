@@ -105,7 +105,7 @@ BEGIN_DATADESC( CBaseNPCMaker )
 	DEFINE_THINKFUNC( MakerThink ),
 
 	DEFINE_FIELD( m_hIgnoreEntity, FIELD_EHANDLE ),
-	DEFINE_KEYFIELD( m_iszIngoreEnt, FIELD_STRING, "IgnoreEntity" ), 
+	DEFINE_KEYFIELD( m_iszIngoreEnt, FIELD_STRING, "IgnoreEntity" ),
 END_DATADESC()
 
 
@@ -180,7 +180,7 @@ bool CBaseNPCMaker::CanMakeNPC( bool bIgnoreSolidEntities )
 	Vector mins = GetAbsOrigin() - Vector( 34, 34, 0 );
 	Vector maxs = GetAbsOrigin() + Vector( 34, 34, 0 );
 	maxs.z = GetAbsOrigin().z;
-	
+
 	// If we care about not hitting solid entities, look for 'em
 	if ( !bIgnoreSolidEntities )
 	{
@@ -336,7 +336,7 @@ void CBaseNPCMaker::InputToggle( inputdata_t &inputdata )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CBaseNPCMaker::InputSetMaxChildren( inputdata_t &inputdata )
 {
@@ -344,7 +344,7 @@ void CBaseNPCMaker::InputSetMaxChildren( inputdata_t &inputdata )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CBaseNPCMaker::InputAddMaxChildren( inputdata_t &inputdata )
 {
@@ -352,7 +352,7 @@ void CBaseNPCMaker::InputAddMaxChildren( inputdata_t &inputdata )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CBaseNPCMaker::InputSetMaxLiveChildren( inputdata_t &inputdata )
 {
@@ -421,7 +421,7 @@ void CNPCMaker::MakeNPC( void )
 		Warning("NULL Ent in NPCMaker!\n" );
 		return;
 	}
-	
+
 	// ------------------------------------------------
 	//  Intialize spawned NPC's relationships
 	// ------------------------------------------------
@@ -480,8 +480,8 @@ void CNPCMaker::MakeNPC( void )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pChild - 
+// Purpose:
+// Input  : *pChild -
 //-----------------------------------------------------------------------------
 void CBaseNPCMaker::ChildPostSpawn( CAI_BaseNPC *pChild )
 {
@@ -523,8 +523,8 @@ void CBaseNPCMaker::MakerThink ( void )
 
 
 //-----------------------------------------------------------------------------
-// Purpose: 
-// Input  : *pVictim - 
+// Purpose:
+// Input  : *pVictim -
 //-----------------------------------------------------------------------------
 void CBaseNPCMaker::DeathNotice( CBaseEntity *pVictim )
 {
@@ -648,7 +648,7 @@ CNPCSpawnDestination *CTemplateNPCMaker::FindSpawnDestination()
 		DevWarning("Template NPC Spawner (%s) doesn't have any spawn destinations!\n", GetDebugName() );
 		return NULL;
 	}
-	
+
 	while( pEnt )
 	{
 		CNPCSpawnDestination *pDestination;
@@ -659,8 +659,8 @@ CNPCSpawnDestination *CTemplateNPCMaker::FindSpawnDestination()
 		{
 			bool fValid = true;
 			Vector vecTest = pDestination->GetAbsOrigin();
-            pPlayer = UTIL_GetNearestPlayer(vecTest);
- 
+            //pPlayer = UTIL_GetNearestPlayer(vecTest);
+
 			if( m_CriterionVisibility != TS_YN_DONT_CARE )
 			{
 				// Right now View Cone check is omitted intentionally.
@@ -728,7 +728,7 @@ CNPCSpawnDestination *CTemplateNPCMaker::FindSpawnDestination()
 			{
 				Vector vecTest = pDestinations[ i ]->GetAbsOrigin();
                 pPlayer = UTIL_GetNearestPlayer(vecTest);
-                
+
 				float flDist = ( vecTest - pPlayer->GetAbsOrigin() ).Length();
 
 				if ( m_iMinSpawnDistance != 0 && m_iMinSpawnDistance > flDist )
@@ -771,7 +771,7 @@ CNPCSpawnDestination *CTemplateNPCMaker::FindSpawnDestination()
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: 
+// Purpose:
 //-----------------------------------------------------------------------------
 void CTemplateNPCMaker::MakeNPC( void )
 {
@@ -809,7 +809,7 @@ void CTemplateNPCMaker::MakeNPC( void )
 		Warning("NULL Ent in NPCMaker!\n" );
 		return;
 	}
-	
+
 	if ( pDestination )
 	{
 		pent->SetAbsOrigin( pDestination->GetAbsOrigin() );
@@ -892,7 +892,7 @@ void CTemplateNPCMaker::MakeNPCInLine( void )
 		Warning("NULL Ent in NPCMaker!\n" );
 		return;
 	}
-	
+
 	m_OnSpawnNPC.Set( pEntity, pEntity, this );
 
 	PlaceNPCInLine( pent );
@@ -987,7 +987,7 @@ void CTemplateNPCMaker::MakeNPCInRadius( void )
 		Warning("NULL Ent in NPCMaker!\n" );
 		return;
 	}
-	
+
 	if ( !PlaceNPCInRadius( pent ) )
 	{
 		// Failed to place the NPC. Abort
